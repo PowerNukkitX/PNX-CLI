@@ -1,0 +1,77 @@
+name: Maven构建
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  check-files:
+    name: 检查仓库文件
+    runs-on: ubuntu-latest
+    outputs:
+      changed-files: ${{ steps.check-changed-files.outputs.all_changed_and_modified_files }}
+
+    steps:
+      - name: 检出仓库内容
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: 检查文件改动情况
+        id: check-changed-files
+        uses: tj-actions/changed-files@v11.4
+        with:
+          since_last_remote_commit: 'true'
+
+      - name: 输出更改文件列表
+        run: echo ${{ steps.check-changed-files.outputs.all_changed_and_modified_files }}
+
+  windows-build:
+    name: Windows x86 构建
+    runs-on: windows-latest
+    needs: check-files
+    if: contains(needs.check-files.outputs.changed-files, 'src/') || (github.event_name == 'push' && contains(github.event.commits[0].message, '+b'))
+
+    steps:
+      - name: 检出仓库内容
+        uses: actions/checkout@v2
+
+      - name: 缓存Maven依赖项
+        id: cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}-PNX-CLI-WINDOWS-X86
+          restore-keys: |
+            ${{ runner.os }}-PNX-CLI-WINDOWS-X86
+
+      - name: 安装GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          version: '22.1.0'
+          java-version: '17'
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Maven构建
+        run: mvn -B package --file pom.xml
+
+      - name: 配置msvc环境
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: amd64
+
+      - name: 本机镜像编译
+        run: |
+          copy .\target\PNX-CLI-0.0.1-alpha-shaded.jar .\target\pnx.jar
+          cd /d .\target
+          native-image -jar pnx.jar
+
+      - name: 上传可执行文件
+        uses: actions/upload-artifact@v2
+        with:
+          name: PNX-CLI-Windows-x86
+          path: target/pnx.exe
