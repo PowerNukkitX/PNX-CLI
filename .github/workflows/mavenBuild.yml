@@ -66,11 +66,8 @@ jobs:
 
       - name: 本机镜像编译
         run: |
-          dir
-          cd /d target
-          dir
           copy .\target\PNX-CLI-0.0.1-alpha-shaded.jar .\target\pnx.jar
-          native-image -jar pnx.jar
+          native-image -jar .\target\pnx.jar
 
       - name: 上传可执行文件
         uses: actions/upload-artifact@v2
