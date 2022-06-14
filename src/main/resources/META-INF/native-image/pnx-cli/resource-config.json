@@ -1,0 +1,14 @@
+{
+  "bundles": [
+  ],
+  "resources": {
+    "includes": [
+      {
+        "pattern": "cn/powernukkitx/cli/.*"
+      },{
+        "pattern": "bin/.*"
+      }
+    ],
+    "excludes": []
+  }
+}
