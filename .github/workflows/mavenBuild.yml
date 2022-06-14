@@ -66,6 +66,7 @@ jobs:
 
       - name: 本机静态编译
         run: |
+          chcp 936
           cd .\target
           copy .\PNX-CLI-0.0.1-alpha.jar .\pnx.jar
           native-image -jar pnx.jar
