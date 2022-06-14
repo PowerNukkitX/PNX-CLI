@@ -64,8 +64,11 @@ jobs:
         with:
           arch: amd64
 
-      - name: 本机镜像编译
+      - name: 本机静态编译
         run: |
+          dir
+          cd .\target
+          dir
           copy .\target\PNX-CLI-0.0.1-alpha-shaded.jar .\target\pnx.jar
           native-image -jar .\target\pnx.jar
 
