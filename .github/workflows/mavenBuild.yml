@@ -29,7 +29,7 @@ jobs:
         run: echo ${{ steps.check-changed-files.outputs.all_changed_and_modified_files }}
 
   windows-build:
-    name: Windows x86
+    name: Windows x86 构建
     runs-on: windows-latest
     needs: check-files
     if: contains(needs.check-files.outputs.changed-files, 'src/') || (github.event_name == 'push' && contains(github.event.commits[0].message, '+b'))
@@ -66,8 +66,10 @@ jobs:
 
       - name: 本机镜像编译
         run: |
+          dir
+          cd /d target
+          dir
           copy .\target\PNX-CLI-0.0.1-alpha-shaded.jar .\target\pnx.jar
-          cd /d .\target
           native-image -jar pnx.jar
 
       - name: 上传可执行文件
