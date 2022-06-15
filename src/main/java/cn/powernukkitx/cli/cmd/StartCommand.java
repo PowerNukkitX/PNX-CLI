@@ -23,10 +23,10 @@ public final class StartCommand implements Callable<Integer> {
     private final ResourceBundle bundle = ResourceBundle.getBundle("cn.powernukkitx.cli.cmd.Start");
 
     @Option(names = {"-g", "--generate-only"}, descriptionKey = "generate-only", help = true)
-    boolean generateOnly;
+    public boolean generateOnly;
 
     @Parameters(index = "0..*", hidden = true)
-    String[] args;
+    public String[] args;
 
     @Override
     public Integer call() {
@@ -86,11 +86,10 @@ public final class StartCommand implements Callable<Integer> {
                     process.destroy();
                 }
             }));
-            process.waitFor();
+            return process.waitFor();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return 1;
         }
-        return 0;
     }
 }

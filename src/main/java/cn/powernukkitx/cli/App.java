@@ -2,7 +2,7 @@ package cn.powernukkitx.cli;
 
 import cn.powernukkitx.cli.cmd.*;
 import cn.powernukkitx.cli.share.CLIConstant;
-import picocli.CommandLine;
+import cn.powernukkitx.cli.util.InputUtils;
 import picocli.CommandLine.*;
 
 import java.util.ResourceBundle;
@@ -23,12 +23,20 @@ public final class App implements Callable<Integer> {
     @Option(names = {"-l", "--lang", "--language"}, paramLabel = "<lang>", descriptionKey = "lang")
     private String ignoredLocale;
 
+    @Parameters(index = "0..*", hidden = true)
+    public String[] args;
+
     private final ResourceBundle bundle = ResourceBundle.getBundle("cn.powernukkitx.cli.App");
 
     @Override
     public Integer call() {
-        if (ignoredLocale == null)
-            CommandLine.usage(this, System.out);
-        return 0;
+        var start = new StartCommand();
+        start.args = args;
+        start.generateOnly = false;
+        var ret = start.call();
+        if (ret != 0) {
+            InputUtils.pressEnterToContinue();
+        }
+        return ret;
     }
 }

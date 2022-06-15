@@ -3,7 +3,6 @@ package cn.powernukkitx.cli.cmd;
 import cn.powernukkitx.cli.share.CLIConstant;
 import picocli.CommandLine.Command;
 
-import java.nio.charset.Charset;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 
@@ -19,8 +18,6 @@ public final class AboutCommand implements Callable<Integer> {
         System.out.println(ansi().fgBrightDefault().bold().a("------------------------------").fgDefault().boldOff());
         System.out.println(ansi().a(bundle.getString("cli-version")).fgBrightYellow().a(CLIConstant.version).fgDefault());
         System.out.println(ansi().a(bundle.getString("author")).fgBrightCyan().a(String.join(", ", CLIConstant.authors)).fgDefault());
-        System.out.println(bundle.getString("author"));
-        System.out.println(Charset.defaultCharset());
         return 0;
     }
 }
