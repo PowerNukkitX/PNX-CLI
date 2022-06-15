@@ -130,3 +130,27 @@ jobs:
         with:
           name: PNX-CLI-Linux-x86
           path: target/pnx
+
+  linux-arm-build:
+    name: Linux arm 构建
+    runs-on: self-hosted
+    needs: check-files
+    if: contains(needs.check-files.outputs.changed-files, 'src/') || (github.event_name == 'push' && contains(github.event.commits[0].message, '+b'))
+
+    steps:
+      - name: 检出仓库内容
+        uses: actions/checkout@v2
+
+      - name: Maven构建
+        run: mvn -B package --file pom.xml
+
+      - name: 本机静态编译
+        run: |
+          cd target
+          native-image -jar PNX-CLI-0.0.1-alpha.jar -H:Name=pnx
+
+      - name: 上传可执行文件
+        uses: actions/upload-artifact@v2
+        with:
+          name: PNX-CLI-Linux-arm
+          path: target/pnx
