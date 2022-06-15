@@ -66,10 +66,9 @@ jobs:
 
       - name: 本机静态编译
         run: |
-          chcp
+          chcp 936
           cd .\target
-          copy .\PNX-CLI-0.0.1-alpha.jar .\pnx.jar
-          native-image -Dfile.encoding=UTF-8 -jar pnx.jar
+          native-image -H:-CheckToolchain -jar PNX-CLI-0.0.1-alpha.jar -H:Name=pnx -Dfile.encoding=GBK
 
       - name: 上传可执行文件
         uses: actions/upload-artifact@v2
