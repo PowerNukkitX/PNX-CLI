@@ -115,7 +115,6 @@ jobs:
           platform: x64
 
       - name: 本机静态编译
-        shell: cmd
         run: |
           cd target
           native-image -jar PNX-CLI-0.0.1-alpha.jar -H:Name=pnx
