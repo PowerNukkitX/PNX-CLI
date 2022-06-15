@@ -69,7 +69,7 @@ jobs:
         run: |
           chcp 936
           cd .\target
-          native-image -jar PNX-CLI-0.0.1-alpha.jar -H:Name=pnx -H:-CheckToolchain
+          native-image -jar PNX-CLI-0.0.1-alpha.jar -Dfile.encoding=GBK -H:Name=pnx -H:-CheckToolchain
 
       - name: 上传可执行文件
         uses: actions/upload-artifact@v2
