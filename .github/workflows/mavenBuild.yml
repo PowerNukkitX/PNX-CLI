@@ -28,7 +28,7 @@ jobs:
       - name: 输出更改文件列表
         run: echo ${{ steps.check-changed-files.outputs.all_changed_and_modified_files }}
 
-  windows-build:
+  windows-x86-build:
     name: Windows x86 构建
     runs-on: windows-latest
     needs: check-files
@@ -76,3 +76,58 @@ jobs:
         with:
           name: PNX-CLI-Windows-x86
           path: target/pnx.exe
+
+  linux-x86-build:
+    name: Linux x86 构建
+    runs-on: ubuntu-latest
+    needs: check-files
+    if: contains(needs.check-files.outputs.changed-files, 'src/') || (github.event_name == 'push' && contains(github.event.commits[0].message, '+b'))
+
+    steps:
+      - name: 检出仓库内容
+        uses: actions/checkout@v2
+
+      - name: 缓存Maven依赖项
+        id: cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}-PNX-CLI-WINDOWS-X86
+          restore-keys: |
+            ${{ runner.os }}-PNX-CLI-LINUX-X86
+
+      - name: 安装GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          version: '22.1.0'
+          java-version: '17'
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Maven构建
+        run: mvn -B package --file pom.xml
+
+      - name: 配置GCC环境
+        uses: egor-tensin/setup-gcc@v1
+        with:
+          version: latest
+          platform: x64
+
+      - name: 本机静态编译
+        shell: cmd
+        run: |
+          cd target
+          native-image -jar PNX-CLI-0.0.1-alpha.jar -H:Name=pnx
+
+      - name: 上传jar包
+        uses: actions/upload-artifact@v2
+        with:
+          name: PNX-CLI-Jar
+          path: target/PNX-CLI-0.0.1-alpha.jar
+
+      - name: 上传可执行文件
+        uses: actions/upload-artifact@v2
+        with:
+          name: PNX-CLI-Linux-x86
+          path: target/pnx
