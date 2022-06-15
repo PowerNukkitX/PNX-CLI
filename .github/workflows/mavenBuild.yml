@@ -68,7 +68,7 @@ jobs:
         run: |
           chcp 936
           cd .\target
-          native-image -jar PNX-CLI-0.0.1-alpha.jar -H:Name=pnx -Dfile.encoding=GBK -H:-CheckToolchain
+          %GRAALVM_HOME%\bin\native-image -jar PNX-CLI-0.0.1-alpha.jar -H:Name=pnx -H:-CheckToolchain
 
       - name: 上传可执行文件
         uses: actions/upload-artifact@v2
