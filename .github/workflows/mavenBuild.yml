@@ -71,6 +71,10 @@ jobs:
           cd .\target
           native-image -jar PNX-CLI-0.0.1-alpha.jar -Dfile.encoding=GBK -H:Name=pnx -H:-CheckToolchain
 
+      - name: 添加图标
+        shell: cmd
+        run: tool\rcedit-x64 "target\pnx.exe" --set-icon "data\pnx.ico"
+
       - name: 上传可执行文件
         uses: actions/upload-artifact@v2
         with:
