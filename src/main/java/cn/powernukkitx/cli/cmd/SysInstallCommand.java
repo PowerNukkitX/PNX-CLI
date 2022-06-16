@@ -6,6 +6,8 @@ import org.fusesource.jansi.Ansi;
 import picocli.CommandLine.*;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Formatter;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
@@ -26,7 +28,7 @@ public final class SysInstallCommand implements Callable<Integer> {
             System.out.println(ansi().fgBrightRed().a(bundle.getString("executable-only")).fgDefault().toString());
             return 1;
         }
-        if (os == EnumOS.UNKNOWN || os == EnumOS.MACOS || os == EnumOS.LINUX) {
+        if (os == EnumOS.UNKNOWN || os == EnumOS.MACOS) {
             System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("unsupportedOS"), System.getProperty("os.name"))).fgDefault().toString());
             return 1;
         }
@@ -68,6 +70,39 @@ public final class SysInstallCommand implements Callable<Integer> {
                             return 0;
                         }
                     } catch (IOException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println(ansi().fgBrightRed().a(bundle.getString("fail")).fgDefault().toString());
+                    return 1;
+                }
+            } else if (os == EnumOS.LINUX) {
+                var sysPath = System.getenv("PATH");
+                var programDir = OSUtils.getProgramDir();
+                if (sysPath.contains(programDir)) {
+                    System.out.println(ansi().fgBrightGreen().a(bundle.getString("already")).fgDefault().toString());
+                    return 0;
+                } else {
+                    try {
+                        var homeDir = System.getProperty("user.home");
+                        var profilePath = homeDir + "/.profile";
+                        var profile = Files.readAllLines(Path.of(profilePath));
+                        var ok = false;
+                        for (int i = 0, len = profile.size(); i < len; i++) {
+                            var line = profile.get(i);
+                            if (line.startsWith("export") && line.contains("$PATH")) {
+                                profile.set(i, profile.get(i) + ":" + programDir);
+                                ok = true;
+                                break;
+                            }
+                        }
+                        if (!ok) {
+                            profile.add("export PATH=" + programDir + ":$PATH");
+                        }
+                        Files.write(Path.of(profilePath), profile);
+                        System.out.println(ansi().fgBrightGreen().a(bundle.getString("success")).fgDefault().toString());
+                        System.out.println(ansi().fgBrightGreen().a(bundle.getString("linux-cmd")).fgDefault().toString());
+                        return 0;
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                     System.out.println(ansi().fgBrightRed().a(bundle.getString("fail")).fgDefault().toString());
