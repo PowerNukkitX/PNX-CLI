@@ -28,6 +28,8 @@ public final class StartCommand implements Callable<Integer> {
     @Parameters(index = "0..*", hidden = true)
     public String[] args;
 
+    private String[] startCommand = null;
+
     @Override
     public Integer call() {
         var cmdBuilder = new JVMStartCommandBuilder();
@@ -79,8 +81,13 @@ public final class StartCommand implements Callable<Integer> {
             System.out.println(cmdBuilder.build());
             return 0;
         }
+        startCommand = cmdBuilder.build().split(" ");
+        return start();
+    }
+
+    private int start() {
         try {
-            var process = new ProcessBuilder().command(cmdBuilder.build().split(" ")).inheritIO().start();
+            var process = new ProcessBuilder().command(startCommand).inheritIO().start();
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 if (process.isAlive()) {
                     process.destroy();
