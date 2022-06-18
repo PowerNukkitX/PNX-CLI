@@ -6,6 +6,7 @@ import cn.powernukkitx.cli.data.locator.GraalModuleLocator;
 import cn.powernukkitx.cli.data.locator.JarLocator;
 import cn.powernukkitx.cli.data.locator.JavaLocator;
 import cn.powernukkitx.cli.share.CLIConstant;
+import cn.powernukkitx.cli.util.InputUtils;
 import cn.powernukkitx.cli.util.OSUtils;
 import picocli.CommandLine.*;
 
@@ -24,6 +25,9 @@ public final class StartCommand implements Callable<Integer> {
 
     @Option(names = {"-g", "--generate-only"}, descriptionKey = "generate-only", help = true)
     public boolean generateOnly;
+
+    @Option(names = {"-r", "--restart"}, descriptionKey = "restart", help = true, negatable = true)
+    public boolean restart;
 
     @Parameters(index = "0..*", hidden = true)
     public String[] args;
@@ -82,10 +86,22 @@ public final class StartCommand implements Callable<Integer> {
             return 0;
         }
         startCommand = cmdBuilder.build().split(" ");
-        return start();
+        if (restart) {
+            var result = start();
+            while (true) {
+                if (!InputUtils.pressEnterToStopWithTimeLimit(10000)) {
+                    result = start();
+                } else {
+                    return result;
+                }
+            }
+        } else {
+            return start();
+        }
     }
 
     private int start() {
+        System.gc();
         try {
             var process = new ProcessBuilder().command(startCommand).inheritIO().start();
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {

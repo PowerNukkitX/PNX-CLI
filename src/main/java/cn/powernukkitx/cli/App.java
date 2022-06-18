@@ -43,6 +43,7 @@ public final class App implements Callable<Integer> {
             return 1;
         }
         start.generateOnly = false;
+        start.restart = true;
         var ret = start.call();
         if (ret != 0) {
             InputUtils.pressEnterToContinue();

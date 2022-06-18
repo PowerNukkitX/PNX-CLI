@@ -3,6 +3,8 @@ package cn.powernukkitx.cli.util;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 
+import static org.fusesource.jansi.Ansi.ansi;
+
 public final class InputUtils {
     private static final ResourceBundle bundle = ResourceBundle.getBundle("cn.powernukkitx.cli.util.Input");
 
@@ -24,5 +26,23 @@ public final class InputUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static boolean pressEnterToStopWithTimeLimit(long timeLimit) {
+        System.out.println(ansi().fgBrightDefault().bold().a(bundle.getString("press-enter-to-stop-with-time-limit")).fgDefault().boldOff());
+        try {
+            var startTime = System.currentTimeMillis();
+            while (System.currentTimeMillis() - startTime < timeLimit) {
+                if (System.in.available() > 0) {
+                    return true;
+                } else {
+                    //noinspection BusyWait
+                    Thread.sleep(100);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
