@@ -1,0 +1,22 @@
+[
+  {
+    "name": "graaljit",
+    "version": "22.0.0.2",
+    "description": {
+      "en": "Graal JIT compiler",
+      "zh": "Graal即时编译器"
+    },
+    "files": [
+      {
+        "name": "compiler-22.0.0.2.jar",
+        "into": "components/graaljit/compiler-22.0.0.2.jar",
+        "url": "https://assets.powernukkitx.cn/components/graaljit/compiler-22.0.0.2.jar"
+      },
+      {
+        "name": "compiler-management-22.0.0.2.jar",
+        "into": "components/graaljit/compiler-management-22.0.0.2.jar",
+        "url": "https://assets.powernukkitx.cn/components/graaljit/compiler-management-22.0.0.2.jar"
+      }
+    ]
+  }
+]
