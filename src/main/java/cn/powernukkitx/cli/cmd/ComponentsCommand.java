@@ -39,10 +39,9 @@ public final class ComponentsCommand implements Callable<Integer> {
             for (var each : libs) {
                 var ansi = ansi();
                 if (each.getFile().exists()) {
-                    ansi.fgBrightRed();
-                    ansi.a("- ");
-                } else {
                     ansi.fgBrightGreen().a("+ ");
+                } else {
+                    ansi.fgBrightRed().a("- ");
                 }
                 ansi.a(each.getInfo().getName()).fgDefault().a(" - ").bold().a(each.getInfo().getVersion()).fgDefault().boldOff().a("  ").a(each.getInfo().getDescription());
                 System.out.println(ansi);
@@ -50,6 +49,11 @@ public final class ComponentsCommand implements Callable<Integer> {
             return 0;
         } else if (options.update != null && !options.update.isBlank()) {
             var componentList = new ComponentsLocator().locate();
+            var componentDir = new File(CLIConstant.userDir, "components");
+            if (!componentDir.exists()) {
+                //noinspection ResultOfMethodCallIgnored
+                componentDir.mkdirs();
+            }
             for (var each : componentList) {
                 var componentInfo = each.getInfo();
                 if (componentInfo.getName().equalsIgnoreCase(options.update)) {

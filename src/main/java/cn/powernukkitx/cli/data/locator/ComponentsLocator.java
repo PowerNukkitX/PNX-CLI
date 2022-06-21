@@ -1,6 +1,7 @@
 package cn.powernukkitx.cli.data.locator;
 
 import cn.powernukkitx.cli.data.remote.ComponentsHelper;
+import cn.powernukkitx.cli.share.CLIConstant;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -16,13 +17,13 @@ public class ComponentsLocator extends Locator<ComponentsLocator.ComponentInfo> 
         for (ComponentsHelper.ComponentEntry componentEntry : componentEntries) {
             final ComponentInfo componentInfo = new ComponentInfo(componentEntry.getName(), componentEntry.getVersion(), componentEntry.getDescription(), true, componentEntry.getComponentFiles());
             for (ComponentsHelper.ComponentFile componentFile : componentEntry.getComponentFiles()) {
-                final File file = new File("./components/" + componentEntry.getName() + "/" + componentFile.getFileName());
+                final File file = new File(CLIConstant.userDir, "components/" + componentEntry.getName() + "/" + componentFile.getFileName());
                 if (!file.exists()) {
                     componentInfo.setInstalled(false);
                     break;
                 }
             }
-            out.add(new Location<>(new File("./components/" + componentEntry.getName()), componentInfo));
+            out.add(new Location<>(new File(CLIConstant.userDir, "components/" + componentEntry.getName()), componentInfo));
         }
         return out;
     }
