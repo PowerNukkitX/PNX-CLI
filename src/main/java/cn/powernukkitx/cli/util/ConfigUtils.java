@@ -83,4 +83,8 @@ public final class ConfigUtils {
     public static boolean displayLaunchCommand() {
         return Boolean.parseBoolean(configMap.getOrDefault("displayLaunchCommand", "false"));
     }
+
+    public static String[] customJVMPaths() {
+        return configMap.getOrDefault("jvmPath", "").split(File.pathSeparator);
+    }
 }

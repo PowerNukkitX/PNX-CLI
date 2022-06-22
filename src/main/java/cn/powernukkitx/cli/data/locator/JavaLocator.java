@@ -78,6 +78,24 @@ public class JavaLocator extends Locator<JavaLocator.JavaInfo> {
 
             }
         }
+        { // 用户自定义探测
+            for (var each : ConfigUtils.customJVMPaths()) {
+                if (each == null || "".equals(each)) {
+                    continue;
+                }
+                final File binDir = new File(CLIConstant.userDir, each);
+                if (binDir.exists() && binDir.isDirectory()) {
+                    if (isJavaDir(binDir)) {
+                        binDirs.add(binDir);
+                    } else {
+                        final File innerBinDir = new File(binDir, "bin");
+                        if (isJavaDir(innerBinDir)) {
+                            binDirs.add(innerBinDir);
+                        }
+                    }
+                }
+            }
+        }
         for (final File binDir : binDirs) {
             Optional<JavaInfo> jv = getJavaVersion(binDir);
             if (jv.isPresent()) {
