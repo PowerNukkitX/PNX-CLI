@@ -6,11 +6,14 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class ConfigUtils {
-    private static Map<String, String> configMap = new HashMap<>();
+    private static Map<String, String> configMap = new LinkedHashMap<>();
+    private final static AtomicBoolean hasChanged = new AtomicBoolean(false);
 
     public static void init() {
         final File configFile = new File(CLIConstant.programDir, "pnx-cli-config.ini");
@@ -46,6 +49,15 @@ public final class ConfigUtils {
                 configMap = new HashMap<>(0);
             }
         }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (hasChanged.get()) {
+                try (var writer = new BufferedWriter(new FileWriter(configFile))) {
+                    INIParser.writeINI(configMap, writer);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }));
     }
 
     public static String graalvmVersion() {
@@ -70,6 +82,11 @@ public final class ConfigUtils {
 
     public static String get(String key) {
         return configMap.get(key);
+    }
+
+    public static void set(String key, String value) {
+        hasChanged.set(true);
+        configMap.put(key, value);
     }
 
     public static String forceLang() {

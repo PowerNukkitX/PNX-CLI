@@ -1,12 +1,13 @@
 package cn.powernukkitx.cli.util;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import cn.powernukkitx.cli.share.CLIConstant;
+
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import static cn.powernukkitx.cli.util.NullUtils.allOk;
@@ -138,5 +139,39 @@ public final class OSUtils {
         var result = Files.readString(resultFile.toPath());
         System.out.println(result);
         return result.contains("pnxEnvOK");
+    }
+
+    public static Locale getWindowsLocale() {
+        try {
+            var cmd = """
+                    reg query "hklm\\system\\controlset001\\control\\nls\\language" /v Installlanguage
+                    """;
+            var cmdFile = new File(CLIConstant.programDir + "/locale.cmd");
+            //noinspection ResultOfMethodCallIgnored
+            cmdFile.getParentFile().mkdirs();
+            if (!cmdFile.exists()) {
+                //noinspection ResultOfMethodCallIgnored
+                cmdFile.createNewFile();
+                try (var writer = new FileWriter(cmdFile)) {
+                    writer.write(cmd);
+                }
+            }
+            var process = new ProcessBuilder().command(cmdFile.getAbsolutePath())
+                    .redirectErrorStream(true).start();
+            process.waitFor(2500, TimeUnit.MILLISECONDS);
+            try(var reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                var s = "";
+                while ((s = reader.readLine()) != null) {
+                    if (s.contains("0804")) {
+                        return Locale.forLanguageTag("zh-cn");
+                    } else if (s.contains("0409 ")) {
+                        return Locale.forLanguageTag("en-us");
+                    }
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            //ignore
+        }
+        return null;
     }
 }
