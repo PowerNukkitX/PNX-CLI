@@ -147,6 +147,7 @@ public final class OSUtils {
                     reg query "hklm\\system\\controlset001\\control\\nls\\language" /v Installlanguage
                     """;
             var cmdFile = new File(CLIConstant.programDir + "/locale.cmd");
+            cmdFile.deleteOnExit();
             //noinspection ResultOfMethodCallIgnored
             cmdFile.getParentFile().mkdirs();
             if (!cmdFile.exists()) {

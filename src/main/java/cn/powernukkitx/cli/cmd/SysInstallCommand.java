@@ -85,6 +85,13 @@ public final class SysInstallCommand implements Callable<Integer> {
                     try {
                         var homeDir = System.getProperty("user.home");
                         var profilePath = homeDir + "/.profile";
+                        if (!Files.exists(Path.of(profilePath))) {
+                            profilePath = homeDir + "/.bash_profile";
+                        }
+                        if (!Files.exists(Path.of(profilePath))) {
+                            System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("unsupportedOS"), System.getProperty("os.name"))).fgDefault().toString());
+                            return 1;
+                        }
                         var profile = Files.readAllLines(Path.of(profilePath));
                         var ok = false;
                         for (int i = 0, len = profile.size(); i < len; i++) {
@@ -100,7 +107,7 @@ public final class SysInstallCommand implements Callable<Integer> {
                         }
                         Files.write(Path.of(profilePath), profile);
                         System.out.println(ansi().fgBrightGreen().a(bundle.getString("success")).fgDefault().toString());
-                        System.out.println(ansi().fgBrightGreen().a(bundle.getString("linux-cmd")).fgDefault().toString());
+                        System.out.println(ansi().fgBrightGreen().a(new Formatter().format(bundle.getString("linux-cmd"), profilePath)).fgDefault().toString());
                         return 0;
                     } catch (IOException e) {
                         e.printStackTrace();
