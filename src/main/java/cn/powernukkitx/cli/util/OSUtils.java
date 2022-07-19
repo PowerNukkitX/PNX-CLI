@@ -175,4 +175,26 @@ public final class OSUtils {
         }
         return null;
     }
+
+    public static void registerWindowsUrlScheme(String scheme, String appPath) {
+        appPath = appPath.replace("\\", "\\\\");
+        var regFile = """
+                Windows Registry Editor Version 5.00
+                [HKEY_CLASSES_ROOT\\%scheme%]
+                "URL Protocol"="%appPath%"
+                @="%scheme%"
+                [HKEY_CLASSES_ROOT\\%scheme%\\DefaultIcon]
+                @="%appPath%,1"
+                [HKEY_CLASSES_ROOT\\%scheme%\\shell]
+                [HKEY_CLASSES_ROOT\\%scheme%\\shell\\open]
+                [HKEY_CLASSES_ROOT\\%scheme%\\shell\\open\\command]
+                @="\\"%appPath%\\" \\"%1\\""
+                """.replace("%scheme%", scheme).replace("%appPath%", appPath);
+        var file = new File(CLIConstant.programDir, "scheme.reg");
+        try {
+            Files.writeString(file.toPath(), regFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
