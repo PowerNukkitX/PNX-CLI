@@ -13,6 +13,7 @@ import java.util.Formatter;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 
+import static cn.powernukkitx.cli.util.ConfigUtils.debug;
 import static cn.powernukkitx.cli.util.NullUtils.Ok;
 import static org.fusesource.jansi.Ansi.ansi;
 
@@ -40,6 +41,9 @@ public final class SponsorCommand implements Callable<Integer> {
             System.out.println(ansi().fgBrightYellow().a(new Formatter().format(bundle.getString("thank"), names)).fgDefault());
         } catch (IOException | InterruptedException e) {
             System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail"), request.uri().toString())).fgDefault());
+            if (debug()) {
+                e.printStackTrace();
+            }
             return 1;
         }
         return 0;

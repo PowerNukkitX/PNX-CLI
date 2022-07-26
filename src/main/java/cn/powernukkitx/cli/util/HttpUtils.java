@@ -14,6 +14,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static cn.powernukkitx.cli.util.ConfigUtils.debug;
 import static cn.powernukkitx.cli.util.StringUtils.displayableBytes;
 import static org.fusesource.jansi.Ansi.ansi;
 
@@ -62,6 +63,9 @@ public final class HttpUtils {
             return true;
         } catch (Exception e) {
             System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail"), displayName)).fgDefault());
+            if (debug()) {
+                e.printStackTrace();
+            }
             return false;
         }
     }

@@ -80,6 +80,10 @@ public final class ConfigUtils {
         return Boolean.parseBoolean(configMap.getOrDefault("auto-restart", "false"));
     }
 
+    public static boolean debug() {
+        return Boolean.parseBoolean(configMap.getOrDefault("debug", "false"));
+    }
+
     public static String get(String key) {
         return configMap.get(key);
     }
