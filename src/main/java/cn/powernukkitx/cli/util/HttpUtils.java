@@ -36,15 +36,21 @@ public final class HttpUtils {
             var task = new TimerTask() {
                 @Override
                 public void run() {
-                    if (contentLength.get()>0) {
-                        final long finished = target.length();
-                        final long total = contentLength.get();
-                        final long speed = finished - atomicLong.get();
-                        atomicLong.set(finished);
-                        bar((float) (finished * 1.0 / total), displayableBytes(finished) + "/" +
-                                displayableBytes(total) + " (" + displayableBytes(speed) + "/s)");
-                        if (finished == total) {
-                            this.cancel();
+                    if (contentLength.get() > 0) {
+                        try {
+                            final long finished = target.length();
+                            final long total = contentLength.get();
+                            final long speed = finished - atomicLong.get();
+                            atomicLong.set(finished);
+                            bar((float) (finished * 1.0 / total), displayableBytes(finished) + "/" +
+                                    displayableBytes(total) + " (" + displayableBytes(speed) + "/s)");
+                            if (finished == total) {
+                                this.cancel();
+                            }
+                        } catch (Exception e) {
+                            if (debug()) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
