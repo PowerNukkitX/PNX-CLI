@@ -80,7 +80,7 @@ public final class HttpUtils {
         percent = Math.min(1, percent);
         final int width = AnsiConsole.getTerminalWidth();
         final var ansi = ansi().cursorUpLine().eraseLine().fgBrightGreen().a("[");
-        final int barWidth = width - 12 - StringUtils.getPrintLength(append);
+        final int barWidth = Math.max(width - 12 - StringUtils.getPrintLength(append), 8);
         final int finishedWidth = Math.round(percent * barWidth);
         ansi.a("=".repeat(finishedWidth));
         ansi.fgBrightYellow().a("-".repeat(barWidth - finishedWidth));
