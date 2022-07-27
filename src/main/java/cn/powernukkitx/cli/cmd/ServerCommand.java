@@ -33,19 +33,24 @@ public final class ServerCommand implements Callable<Integer> {
     @Option(names = {"update", "-u", "install", "-i"}, help = true, descriptionKey = "update")
     boolean update;
 
+    @Option(names = "--latest", help = true, descriptionKey = "latest")
+    boolean latest = false;
+
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public Integer call() throws ParseException {
         if (update) {
             var versionCores = listVersion();
             System.out.println(ansi().fgBrightDefault().a(bundle.getString("available-version")).fgDefault());
-            for (int i = 0, len = versionCores.size(); i < len; i++) {
-                var entry = versionCores.get(i).getAsJsonObject();
-                var time = utcTimeFormat.parse(entry.get("lastModified").getAsString());
-                var names = entry.get("name").getAsString().split("-");
-                System.out.println((i + 1) + ". " + names[1] + " > " + names[0] + " (" + commonTimeFormat.format(time) + ")");
+            if (!latest) {
+                for (int i = 0, len = versionCores.size(); i < len; i++) {
+                    var entry = versionCores.get(i).getAsJsonObject();
+                    var time = utcTimeFormat.parse(entry.get("lastModified").getAsString());
+                    var names = entry.get("name").getAsString().split("-");
+                    System.out.println((i + 1) + ". " + names[1] + " > " + names[0] + " (" + commonTimeFormat.format(time) + ")");
+                }
             }
-            var index = InputUtils.readIndex(bundle.getString("choose-version")) - 1;
+            var index = latest ? 0 : InputUtils.readIndex(bundle.getString("choose-version")) - 1;
             new JarLocator(CLIConstant.userDir, "cn.nukkit.api.PowerNukkitXOnly").locate().forEach(each -> each.getFile().delete());
             var name = versionCores.get(index).getAsJsonObject().get("name").getAsString();
             var result = HttpUtils.downloadWithBar(versionCores.get(index).getAsJsonObject().get("url").getAsString(),
