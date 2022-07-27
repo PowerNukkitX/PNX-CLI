@@ -56,6 +56,12 @@ public final class HttpUtils {
                 }
             };
             timer.scheduleAtFixedRate(task, 500, 500);
+            if (!target.exists()) {
+                //noinspection ResultOfMethodCallIgnored
+                target.getParentFile().mkdirs();
+                //noinspection ResultOfMethodCallIgnored
+                target.createNewFile();
+            }
             try (var fos = new FileOutputStream(target)) {
                 var response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
                 try (var fis = response.body()) {
