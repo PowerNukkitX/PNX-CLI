@@ -74,7 +74,7 @@ public final class StartCommand implements Callable<Integer> {
         cmdBuilder.addXxOption("UseG1GC", true);
         cmdBuilder.addXxOption("UseStringDeduplication", true);
         cmdBuilder.addXxOption("EnableJVMCI", true);
-        if (isLowVersionGraalVM(java.getInfo())) {
+        if (isLowVersionGraalVM(java.getInfo()) != GraalStatus.NotFound) {
             cmdBuilder.addXxOption("UseJVMCICompiler", true);
         } else {
             var graalJIT = new GraalJITLocator().locate();
@@ -107,17 +107,23 @@ public final class StartCommand implements Callable<Integer> {
         }
     }
 
-    private boolean isLowVersionGraalVM(JavaLocator.JavaInfo javaInfo) {
+    enum GraalStatus {
+        NotFound,
+        Standard,
+        LowVersion
+    }
+
+    private GraalStatus isLowVersionGraalVM(JavaLocator.JavaInfo javaInfo) {
         var vendor = javaInfo.getVendor().toLowerCase();
         if (!vendor.contains("graal")) {
-            return false;
+            return GraalStatus.NotFound;
         }
         var index = vendor.indexOf("2", vendor.indexOf("graalvm"));
         if (index == -1) {
-            return false;
+            return GraalStatus.NotFound;
         }
         var version = vendor.substring(index, index + 4);
-        return Integer.parseInt(version.replace(".", "")) < 222;
+        return Integer.parseInt(version.replace(".", "")) < 222 ? GraalStatus.LowVersion : GraalStatus.Standard;
     }
 
     private int start() {
