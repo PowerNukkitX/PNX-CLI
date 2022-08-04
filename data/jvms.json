@@ -3,24 +3,24 @@
     "name": "GraalVM",
     "download": {
       "windows-x86": {
-        "url": "https://download.fastgit.org/graalvm/graalvm-ce-builds/releases/download/vm-22.1.0/graalvm-ce-java17-windows-amd64-22.1.0.zip",
-        "size": "349MB"
+        "url": "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.2.0/graalvm-ce-java17-windows-amd64-22.2.0.zip",
+        "size": "244MB"
       },
       "linux-x86": {
-        "url": "https://download.fastgit.org/graalvm/graalvm-ce-builds/releases/download/vm-22.1.0/graalvm-ce-java17-linux-amd64-22.1.0.zip",
-        "size": "430MB"
+        "url": "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.2.0/graalvm-ce-java17-linux-amd64-22.2.0.tar.gz",
+        "size": "251MB"
       },
       "linux-aarch": {
-        "url": "https://download.fastgit.org/graalvm/graalvm-ce-builds/releases/download/vm-22.1.0/graalvm-ce-java17-linux-aarch64-22.1.0.zip",
-        "size": "424MB"
+        "url": "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.2.0/graalvm-ce-java17-linux-aarch64-22.2.0.tar.gz",
+        "size": "249MB"
       },
       "macos-x86": {
-        "url": "https://download.fastgit.org/graalvm/graalvm-ce-builds/releases/download/vm-22.1.0/graalvm-ce-java17-darwin-amd64-22.1.0.zip",
-        "size": "424MB"
+        "url": "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.2.0/graalvm-ce-java17-darwin-amd64-22.2.0.tar.gz",
+        "size": "248MB"
       },
       "macos-aarch": {
-        "url": "https://download.fastgit.org/graalvm/graalvm-ce-builds/releases/download/vm-22.1.0/graalvm-ce-java17-darwin-aarch64-22.1.0.zip",
-        "size": "399MB"
+        "url": "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.2.0/graalvm-ce-java17-darwin-aarch64-22.2.0.tar.gz",
+        "size": "245MB"
       }
     }
   },
