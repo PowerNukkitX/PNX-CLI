@@ -11,7 +11,10 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Formatter;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 
@@ -32,6 +35,7 @@ public final class ComponentsCommand implements Callable<Integer> {
     }
 
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public Integer call() {
         if (options.check) {
@@ -58,6 +62,16 @@ public final class ComponentsCommand implements Callable<Integer> {
                 var componentInfo = each.getInfo();
                 if (componentInfo.getName().equalsIgnoreCase(options.update)) {
                     System.out.println(ansi().fgBrightYellow().a(new Formatter().format(bundle.getString("installing"), componentInfo.getName() + " - " + componentInfo.getVersion())).fgDefault());
+                    for (var clearFileName : componentInfo.getClearFiles()) {
+                        var file = new File(CLIConstant.userDir, clearFileName);
+                        if (file.exists()) {
+                            if (file.isDirectory()) {
+                                Arrays.stream(Objects.requireNonNull(file.listFiles())).sequential().forEach(File::delete);
+                            } else if (file.isFile()) {
+                                file.delete();
+                            }
+                        }
+                    }
                     var ok = true;
                     for (var compFile : componentInfo.getComponentFiles()) {
                         ok = ok && HttpUtils.downloadWithBar(compFile.getDownloadPath(), new File(CLIConstant.userDir, compFile.getFileName()), componentInfo.getName() + " - " + componentInfo.getVersion(), Main.getTimer());

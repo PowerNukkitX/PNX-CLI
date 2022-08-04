@@ -15,7 +15,7 @@ public class ComponentsLocator extends Locator<ComponentsLocator.ComponentInfo> 
         final List<ComponentsHelper.ComponentEntry> componentEntries = ComponentsHelper.listRemoteComponents();
         final List<Location<ComponentInfo>> out = new ArrayList<>(componentEntries.size());
         for (ComponentsHelper.ComponentEntry componentEntry : componentEntries) {
-            final ComponentInfo componentInfo = new ComponentInfo(componentEntry.getName(), componentEntry.getVersion(), componentEntry.getDescription(), true, componentEntry.getComponentFiles());
+            final ComponentInfo componentInfo = new ComponentInfo(componentEntry.getName(), componentEntry.getVersion(), componentEntry.getDescription(), true, componentEntry.getClearFiles(), componentEntry.getComponentFiles());
             for (ComponentsHelper.ComponentFile componentFile : componentEntry.getComponentFiles()) {
                 final File file = new File(CLIConstant.userDir, "components/" + componentEntry.getName() + "/" + componentFile.getFileName());
                 if (!file.exists()) {
@@ -33,17 +33,19 @@ public class ComponentsLocator extends Locator<ComponentsLocator.ComponentInfo> 
         private String version;
         private String description;
         private boolean installed;
+        private String[] clearFiles;
         private ComponentsHelper.ComponentFile[] componentFiles;
 
         public ComponentInfo() {
 
         }
 
-        public ComponentInfo(String name, String version, String description, boolean installed, ComponentsHelper.ComponentFile[] componentFiles) {
+        public ComponentInfo(String name, String version, String description, boolean installed, String[] clearFiles, ComponentsHelper.ComponentFile[] componentFiles) {
             this.name = name;
             this.version = version;
             this.description = description;
             this.installed = installed;
+            this.clearFiles = clearFiles;
             this.componentFiles = componentFiles;
         }
 
@@ -80,6 +82,15 @@ public class ComponentsLocator extends Locator<ComponentsLocator.ComponentInfo> 
 
         public ComponentInfo setInstalled(boolean installed) {
             this.installed = installed;
+            return this;
+        }
+
+        public String[] getClearFiles() {
+            return clearFiles;
+        }
+
+        public ComponentInfo setClearFiles(String[] clearFiles) {
+            this.clearFiles = clearFiles;
             return this;
         }
 

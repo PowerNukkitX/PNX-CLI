@@ -49,6 +49,12 @@ public final class ComponentsHelper {
                 }
                 var componentEntry = new ComponentEntry()
                         .setName(obj.get("name").getAsString()).setDescription(description).setVersion(obj.get("version").getAsString());
+                var clearJsonArray = obj.get("clear").getAsJsonArray();
+                var clearFiles = new String[clearJsonArray.size()];
+                for (int i = 0, len = clearFiles.length; i < len; i++) {
+                    clearFiles[i] = clearJsonArray.get(i).getAsString();
+                }
+                componentEntry.setClearFiles(clearFiles);
                 var fileObjs = obj.get("files").getAsJsonArray();
                 final ComponentFile[] componentFiles = new ComponentFile[fileObjs.size()];
                 for (int i = 0, len = componentFiles.length; i < len; i++) {
@@ -67,16 +73,18 @@ public final class ComponentsHelper {
         private String name;
         private String version;
         private String description;
+        private String[] clearFiles;
         private ComponentFile[] componentFiles;
 
         public ComponentEntry() {
 
         }
 
-        public ComponentEntry(String name, String version, String description, ComponentFile[] componentFiles) {
+        public ComponentEntry(String name, String version, String description, String[] clearFiles, ComponentFile[] componentFiles) {
             this.name = name;
             this.version = version;
             this.description = description;
+            this.clearFiles = clearFiles;
             this.componentFiles = componentFiles;
         }
 
@@ -114,6 +122,15 @@ public final class ComponentsHelper {
         public ComponentEntry setComponentFiles(ComponentFile[] componentFiles) {
             this.componentFiles = componentFiles;
             return this;
+        }
+
+        public ComponentEntry setClearFiles(String[] clearFiles) {
+            this.clearFiles = clearFiles;
+            return this;
+        }
+
+        public String[] getClearFiles() {
+            return clearFiles;
         }
 
         @Override
