@@ -1,5 +1,6 @@
 package cn.powernukkitx.cli.cmd;
 
+import cn.powernukkitx.cli.Main;
 import cn.powernukkitx.cli.data.builder.JVMStartCommandBuilder;
 import cn.powernukkitx.cli.data.locator.GraalJITLocator;
 import cn.powernukkitx.cli.data.locator.GraalModuleLocator;
@@ -12,8 +13,11 @@ import picocli.CommandLine.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.Formatter;
 import java.util.ResourceBundle;
+import java.util.TimerTask;
 import java.util.concurrent.Callable;
 
 import static cn.powernukkitx.cli.util.NullUtils.Ok;
@@ -28,6 +32,9 @@ public final class StartCommand implements Callable<Integer> {
 
     @Option(names = {"-r", "--restart"}, descriptionKey = "restart", help = true, negatable = true)
     public boolean restart;
+
+    @Option(names = "--stdin", descriptionKey = "stdin", help = true)
+    public String stdin;
 
     @Parameters(index = "0..*", hidden = true)
     public String[] args;
@@ -122,6 +129,29 @@ public final class StartCommand implements Callable<Integer> {
                     process.destroy();
                 }
             }));
+            if (stdin != null && !"".equals(stdin.trim())) {
+                var stdinFile = new File(CLIConstant.userDir, stdin);
+                if (stdinFile.exists() && stdinFile.isFile() && stdinFile.canRead() && stdinFile.canWrite()) {
+                    Main.getTimer().schedule(new TimerTask() {
+                        long lastUpdateTime = -1;
+                        @Override
+                        public void run() {
+                            try {
+                                if (!process.isAlive()) {
+                                    this.cancel();
+                                }
+                                if (stdinFile.lastModified() > lastUpdateTime) {
+                                    process.getOutputStream().write(Files.readAllBytes(stdinFile.toPath()));
+                                    Files.write(stdinFile.toPath(), new byte[0], StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+                                    lastUpdateTime = stdinFile.lastModified();
+                                }
+                            } catch (Exception ignore) {
+
+                            }
+                        }
+                    }, 1000);
+                }
+            }
             return process.waitFor();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
