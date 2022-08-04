@@ -67,7 +67,7 @@ public final class StartCommand implements Callable<Integer> {
         cmdBuilder.addXxOption("UseG1GC", true);
         cmdBuilder.addXxOption("UseStringDeduplication", true);
         cmdBuilder.addXxOption("EnableJVMCI", true);
-        if (java.getInfo().getVendor().toLowerCase().contains("graal")) {
+        if (isLowVersionGraalVM(java.getInfo())) {
             cmdBuilder.addXxOption("UseJVMCICompiler", true);
         } else {
             var graalJIT = new GraalJITLocator().locate();
@@ -98,6 +98,19 @@ public final class StartCommand implements Callable<Integer> {
         } else {
             return start();
         }
+    }
+
+    private boolean isLowVersionGraalVM(JavaLocator.JavaInfo javaInfo) {
+        var vendor = javaInfo.getVendor().toLowerCase();
+        if (!vendor.contains("graal")) {
+            return false;
+        }
+        var index = vendor.indexOf("2", vendor.indexOf("graalvm"));
+        if (index == -1) {
+            return false;
+        }
+        var version = vendor.substring(index, index + 4);
+        return Integer.parseInt(version.replace(".", "")) < 222;
     }
 
     private int start() {
