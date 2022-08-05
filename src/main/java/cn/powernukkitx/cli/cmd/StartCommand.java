@@ -12,6 +12,7 @@ import cn.powernukkitx.cli.util.OSUtils;
 import picocli.CommandLine.*;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
@@ -129,17 +130,26 @@ public final class StartCommand implements Callable<Integer> {
     private int start() {
         System.gc();
         try {
-            var process = new ProcessBuilder().command(startCommand).inheritIO().start();
+            var useStdinFile = stdin != null && !"".equals(stdin.trim());
+            var builder = new ProcessBuilder().command(startCommand);
+            if (useStdinFile) {
+                builder.redirectOutput(ProcessBuilder.Redirect.INHERIT)
+                        .redirectError(ProcessBuilder.Redirect.INHERIT);
+            } else {
+                builder.inheritIO();
+            }
+            var process = builder.start();
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 if (process.isAlive()) {
                     process.destroy();
                 }
             }));
-            if (stdin != null && !"".equals(stdin.trim())) {
+            if (useStdinFile) {
                 var stdinFile = new File(CLIConstant.userDir, stdin);
                 if (stdinFile.exists() && stdinFile.isFile() && stdinFile.canRead() && stdinFile.canWrite()) {
                     Main.getTimer().scheduleAtFixedRate(new TimerTask() {
                         long lastUpdateTime = -1;
+
                         @Override
                         public void run() {
                             try {
@@ -147,8 +157,13 @@ public final class StartCommand implements Callable<Integer> {
                                     this.cancel();
                                 }
                                 if (stdinFile.lastModified() > lastUpdateTime) {
-                                    process.getOutputStream().write(Files.readAllBytes(stdinFile.toPath()));
-                                    Files.write(stdinFile.toPath(), new byte[0], StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+                                    var tmp = Files.readAllBytes(stdinFile.toPath());
+                                    process.getOutputStream().write(tmp);
+                                    process.getOutputStream().flush();
+                                    try (var fileWriter = new FileWriter(stdinFile)) {
+                                        fileWriter.write("");// 清空
+                                        fileWriter.flush();
+                                    }
                                     lastUpdateTime = stdinFile.lastModified();
                                 }
                             } catch (Exception ignore) {
