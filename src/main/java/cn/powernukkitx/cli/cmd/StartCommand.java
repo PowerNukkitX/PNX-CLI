@@ -138,7 +138,7 @@ public final class StartCommand implements Callable<Integer> {
             if (stdin != null && !"".equals(stdin.trim())) {
                 var stdinFile = new File(CLIConstant.userDir, stdin);
                 if (stdinFile.exists() && stdinFile.isFile() && stdinFile.canRead() && stdinFile.canWrite()) {
-                    Main.getTimer().schedule(new TimerTask() {
+                    Main.getTimer().scheduleAtFixedRate(new TimerTask() {
                         long lastUpdateTime = -1;
                         @Override
                         public void run() {
@@ -155,7 +155,7 @@ public final class StartCommand implements Callable<Integer> {
 
                             }
                         }
-                    }, 1000);
+                    }, 1000, 1000);
                 }
             }
             return process.waitFor();
