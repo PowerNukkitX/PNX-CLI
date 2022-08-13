@@ -246,7 +246,7 @@ public final class JVMStartCommandBuilder {
         for (var entry : xOptions.entrySet()) {
             sb.append("-X").append(entry.getKey());
             if (entry.getValue() != null) {
-                sb.append("=").append(entry.getValue());
+                sb.append(entry.getValue());
             }
             sb.append(" ");
         }
