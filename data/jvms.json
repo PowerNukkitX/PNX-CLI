@@ -1,5 +1,30 @@
 [
   {
+    "name": "OracleJDK",
+    "download": {
+      "windows-x86": {
+        "url": "https://download.oracle.com/java/17/latest/jdk-17_windows-x64_bin.zip",
+        "size": "172MB"
+      },
+      "linux-x86": {
+        "url": "https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.tar.gz",
+        "size": "172MB"
+      },
+      "linux-aarch": {
+        "url": "https://download.oracle.com/java/17/latest/jdk-17_linux-aarch64_bin.tar.gz",
+        "size": "172MB"
+      },
+      "macos-x86": {
+        "url": "https://download.oracle.com/java/17/latest/jdk-17_macos-x64_bin.tar.gz",
+        "size": "172MB"
+      },
+      "macos-aarch": {
+        "url": "https://download.oracle.com/java/17/latest/jdk-17_macos-aarch64_bin.tar.gz",
+        "size": "172MB"
+      }
+    }
+  },
+  {
     "name": "GraalVM",
     "download": {
       "windows-x86": {
