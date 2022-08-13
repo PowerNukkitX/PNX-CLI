@@ -28,23 +28,23 @@
     "name": "AdoptOpenJDK",
     "download": {
       "windows-x86": {
-        "url": "https://mirrors.tuna.tsinghua.edu.cn/Adoptium/17/jre/x64/windows/OpenJDK17U-jre_x64_windows_hotspot_17.0.3_7.zip",
+        "url": "https://mirrors.tuna.tsinghua.edu.cn/Adoptium/17/jre/x64/windows/OpenJDK17U-jre_x64_windows_hotspot_17.0.4_8.zip",
         "size": "41.1MB"
       },
       "macos-x86": {
-        "url": "https://mirrors.tuna.tsinghua.edu.cn/Adoptium/17/jre/x64/mac/OpenJDK17U-jre_x64_mac_hotspot_17.0.3_7.tar.gz",
+        "url": "https://mirrors.tuna.tsinghua.edu.cn/Adoptium/17/jre/x64/mac/OpenJDK17U-jre_x64_mac_hotspot_17.0.4_8.tar.gz",
         "size": "41.6MB"
       },
       "linux-x86": {
-        "url": "https://mirrors.tuna.tsinghua.edu.cn/Adoptium/17/jre/x64/linux/OpenJDK17U-jre_x64_linux_hotspot_17.0.3_7.tar.gz",
+        "url": "https://mirrors.tuna.tsinghua.edu.cn/Adoptium/17/jre/x64/linux/OpenJDK17U-jre_x64_linux_hotspot_17.0.4_8.tar.gz",
         "size": "43.8MB"
       },
       "macos-aarch": {
-        "url": "https://mirrors.tuna.tsinghua.edu.cn/Adoptium/17/jre/aarch64/mac/OpenJDK17U-jre_aarch64_mac_hotspot_17.0.3_7.tar.gz",
+        "url": "https://mirrors.tuna.tsinghua.edu.cn/Adoptium/17/jre/aarch64/mac/OpenJDK17U-jre_aarch64_mac_hotspot_17.0.4_8.tar.gz",
         "size": "34.5MB"
       },
       "linux-aarch": {
-        "url": "https://mirrors.tuna.tsinghua.edu.cn/Adoptium/17/jre/aarch64/linux/OpenJDK17U-jre_aarch64_linux_hotspot_17.0.3_7.tar.gz",
+        "url": "https://mirrors.tuna.tsinghua.edu.cn/Adoptium/17/jre/aarch64/linux/OpenJDK17U-jre_aarch64_linux_hotspot_17.0.4_8.tar.gz",
         "size": "43.2MB"
       }
     }
