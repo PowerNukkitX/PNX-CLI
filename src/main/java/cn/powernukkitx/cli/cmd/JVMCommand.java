@@ -40,7 +40,7 @@ public final class JVMCommand implements Callable<Integer> {
         boolean check;
         @Option(names = "remote", required = true, descriptionKey = "remote", help = true)
         boolean remote;
-        @Option(names = "install", required = true, descriptionKey = "install-jvm", help = true)
+        @Option(names = {"install", "-i"}, required = true, descriptionKey = "install-jvm", help = true)
         String install = null;
         @Option(names = "uninstall", required = true, descriptionKey = "uninstall-jvm", help = true)
         boolean uninstall;

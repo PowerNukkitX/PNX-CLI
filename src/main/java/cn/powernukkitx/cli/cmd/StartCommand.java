@@ -7,15 +7,17 @@ import cn.powernukkitx.cli.data.locator.GraalModuleLocator;
 import cn.powernukkitx.cli.data.locator.JarLocator;
 import cn.powernukkitx.cli.data.locator.JavaLocator;
 import cn.powernukkitx.cli.share.CLIConstant;
+import cn.powernukkitx.cli.util.ConfigUtils;
 import cn.powernukkitx.cli.util.InputUtils;
 import cn.powernukkitx.cli.util.OSUtils;
-import picocli.CommandLine.*;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.Formatter;
 import java.util.ResourceBundle;
 import java.util.TimerTask;
@@ -71,6 +73,7 @@ public final class StartCommand implements Callable<Integer> {
         cmdBuilder.addProperty("file.encoding", "UTF-8");
         cmdBuilder.addProperty("jansi.passthrough", "true");
         cmdBuilder.addProperty("terminal.ansi", "true");
+        cmdBuilder.addXOption("mx", ConfigUtils.maxVMMemory());
         cmdBuilder.addXxOption("UnlockExperimentalVMOptions", true);
         cmdBuilder.addXxOption("UseG1GC", true);
         cmdBuilder.addXxOption("UseStringDeduplication", true);

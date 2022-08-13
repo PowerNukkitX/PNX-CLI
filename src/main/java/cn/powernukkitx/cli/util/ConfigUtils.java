@@ -1,8 +1,10 @@
 package cn.powernukkitx.cli.util;
 
 import cn.powernukkitx.cli.share.CLIConstant;
+import com.sun.management.OperatingSystemMXBean;
 
 import java.io.*;
+import java.lang.management.ManagementFactory;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
@@ -107,5 +109,17 @@ public final class ConfigUtils {
 
     public static String[] customJVMPaths() {
         return configMap.getOrDefault("jvmPath", "").split(File.pathSeparator);
+    }
+
+    public static String maxVMMemory() {
+        if (configMap.containsKey("vmMemory")) {
+            return configMap.get("vmMemory");
+        } else {
+            var bean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+            var mem = (bean.getTotalMemorySize() / 1024 / 1024) + "m";
+            configMap.put("vmMemory", mem);
+            hasChanged.set(true);
+            return mem;
+        }
     }
 }
