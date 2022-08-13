@@ -39,8 +39,9 @@ public final class INIParser {
         for (var each : iniMap.entrySet()) {
             writer.write(each.getKey());
             if (each.getValue() != null) {
-                writer.write(" = ");
+                writer.write("=");
                 writer.write(each.getValue());
+                writer.write("\n");
             }
         }
     }

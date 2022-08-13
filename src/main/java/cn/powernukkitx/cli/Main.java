@@ -23,6 +23,7 @@ public final class Main {
                 var locale = OSUtils.getWindowsLocale();
                 if (locale != null) {
                     Locale.setDefault(locale);
+                    ConfigUtils.set("language", locale.toLanguageTag());
                 }
             }
         }
