@@ -1,6 +1,6 @@
 # PNX-CLI
 [![English](https://img.shields.io/badge/English-100%25-green?style=flat-square)](https://github.com/PowerNukkitX/PNX-CLI/blob/master/README.md)
-[![简体中文](https://img.shields.io/badge/繁體中文-100%25-green?style=flat-square)](https://github.com/PowerNukkitX/PNX-CLI/blob/master/lang/ZH-README.md)
+[![简体中文](https://img.shields.io/badge/简体中文-100%25-green?style=flat-square)](https://github.com/PowerNukkitX/PNX-CLI/blob/master/lang/ZH-README.md)
 
 
 PNX-CLI 是PNX的命令行工具。可以帮助您快速安装并启动PNX。
