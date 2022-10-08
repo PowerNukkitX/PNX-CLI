@@ -1,27 +1,30 @@
 # PNX-CLI
+[![English](https://img.shields.io/badge/English-100%25-green?style=flat-square)](https://github.com/PowerNukkitX/PNX-CLI/blob/master/README.md)
+[![简体中文](https://img.shields.io/badge/繁體中文-100%25-green?style=flat-square)](https://github.com/PowerNukkitX/PNX-CLI/blob/master/lang/ZH-README.md)
 
-PNX-CLI 是PNX的命令行工具。可以帮助您快速安装并启动PNX。
-windows使用.\pnx.exe运行  
-linux使用./pnx运行
-以下简写为pnx
-## 常用的一些命令
-子列表为参数体,主列表为命令体
+
+PNX-CLI is a command line tool for PNX. It can help you to install and start PNX quickly.
+windows using . \pnx.exe to run.
+linux use . /pnx to run.
+Hereafter abbreviated to pnx.
+## Some common commands
+The sub-list is the parameter body, and the main list is the command body.
 - pnx start
-  - -g&emsp;生成启动命令
-  - -r&emsp;以自动重启模式启动服务器
-  - --stdin=xxx&emsp;从指定文件中读取控制台输入(xxx输入文件地址,从pnx-cli当前路径)
+  - -g&emsp;Generate startup commands
+  - -r&emsp;Start the server in automatic reboot mode
+  - --stdin=xxx&emsp;Read console input from the specified file (xxx input the file address, from pnx-cli current path)
 - pnx server
-  - --latest&emsp;安装最新版本pnx core
-  - -u&emsp;安装或升级PNX服务端核心(需手动选择)
+  - --latest&emsp;Install the latest version of pnx core
+  - -u&emsp;Install or upgrade PNX server core (manual selection required)
 - pnx libs
-  - -u&emsp;安装或更新依赖库
-  - -v&emsp;检测依赖库是否为最新
+  - -u&emsp;Install or update dependent libraries
+  - -v&emsp;Check if the dependency library is up to date
 - pnx jvm
-  - check&emsp;查看已经安装了的JVM。
-  - remote&emsp;列出PNX远程仓库中的所有可用JVM。
-  - install=name&emsp;根据输入的型号名称安装新的JVM。(名称从上面的指令查询)
-  - uninstall&emsp;根据输入的序号卸载已经安装了的JVM。
+  - check&emsp;View the installed JVMs
+  - remote&emsp;Lists all available JVM in the PNX remote repository
+  - install=name&emsp;Install the JVM according to the name.(The name is queried from the command above)
+  - uninstall&emsp;Uninstall the installed JVM according to the entered serial number.
 - pnx comp
-  - -c&emsp;检查可用的附加组件。
-  - -i=name&emsp;根据输入名称安装或修复附加组件。(名称从上面的指令查询)
-- pnx about&emsp;PowerNukkitX CLI的信息。
+  - -c&emsp;Check for available addons。
+  - -i=name&emsp;Install or repair the addon according to the entered name. (The name is checked from the command above)
+- pnx about&emsp;Information about the PowerNukkitX CLI
