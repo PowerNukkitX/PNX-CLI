@@ -17,6 +17,14 @@ public final class InputUtils {
         var scanner = new Scanner(System.in);
         return scanner.nextInt();
     }
+    public static char readChar() {
+        var scanner = new Scanner(System.in);
+        return scanner.next().charAt(0);
+    }
+    public static String readLine() {
+        var scanner = new Scanner(System.in);
+        return scanner.nextLine();
+    }
 
     public static void pressEnterToContinue() {
         System.out.println(bundle.getString("press-enter-to-continue"));

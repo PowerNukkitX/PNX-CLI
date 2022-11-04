@@ -9,6 +9,7 @@ import cn.powernukkitx.cli.data.locator.JavaLocator;
 import cn.powernukkitx.cli.share.CLIConstant;
 import cn.powernukkitx.cli.util.ConfigUtils;
 import cn.powernukkitx.cli.util.InputUtils;
+import cn.powernukkitx.cli.util.LibsUtils;
 import cn.powernukkitx.cli.util.OSUtils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -18,9 +19,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Formatter;
-import java.util.ResourceBundle;
-import java.util.TimerTask;
+import java.text.ParseException;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import static cn.powernukkitx.cli.util.NullUtils.Ok;
@@ -59,10 +59,36 @@ public final class StartCommand implements Callable<Integer> {
         cmdBuilder.setJvmExecutable(java.getFile());
         System.out.println(ansi().fgBrightYellow().a(new Formatter().format(bundle.getString("using-jvm"), java.getInfo().getVendor())).fgDefault());
         var pnxList = new JarLocator(CLIConstant.userDir, "cn.nukkit.api.PowerNukkitXOnly").locate();
+
         if (pnxList.size() == 0) {
-            System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-pnx"), OSUtils.getProgramName())).fgDefault());
-            return 1;
+            try {
+                System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-pnx"), OSUtils.getProgramName())).fgDefault());
+                var download = new ServerCommand();
+                download.update = true;
+                download.latest = false;
+                download.call();
+            } catch (ParseException e) {
+                e.printStackTrace();
+                return 1;
+            }
+            pnxList = new JarLocator(CLIConstant.userDir, "cn.nukkit.api.PowerNukkitXOnly").locate();
         }
+        var libDir = new File(CLIConstant.userDir, "libs");
+        if (!libDir.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            libDir.mkdirs();
+        }
+        var oldLibFiles = new LinkedList<>(Arrays.asList(Objects.requireNonNull(libDir.listFiles((dir, name) -> name.endsWith(".jar")))));
+        if (oldLibFiles.size() < 32) {
+            System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-libs"), OSUtils.getProgramName())).fgDefault());
+            System.out.println(ansi().fgBrightRed().a(new Formatter().format("1: true")).fgDefault());
+            System.out.println(ansi().fgBrightRed().a(new Formatter().format("2: false")).fgDefault());
+            var input = InputUtils.readLine();
+            if (input.charAt(0) == '1' || input.charAt(0) == 'T' || input.charAt(0) == 't' || input.equals("true") || input.equals("TRUE")) {
+                LibsUtils.checkAndUpdate();
+            }
+        }
+
         var pnx = pnxList.get(0);
         cmdBuilder.addClassPath(pnx.getFile().getAbsolutePath());
         System.out.println(ansi().fgBrightYellow().a(new Formatter().format(bundle.getString("using-pnx"), Ok(pnx.getInfo().getGitInfo().orElse(null), info -> info.getMainVersion() + " - " + info.getCommitID(), "unknown"))).fgDefault());

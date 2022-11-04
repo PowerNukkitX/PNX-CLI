@@ -4,6 +4,7 @@ import cn.powernukkitx.cli.Main;
 import cn.powernukkitx.cli.data.locator.LibsLocator;
 import cn.powernukkitx.cli.share.CLIConstant;
 import cn.powernukkitx.cli.util.HttpUtils;
+import cn.powernukkitx.cli.util.LibsUtils;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -32,26 +33,7 @@ public final class LibsCommand implements Callable<Integer> {
     @Override
     public Integer call() {
         if (options.update) {
-            var libs = new LibsLocator().locate();
-            var libDir = new File(CLIConstant.userDir, "libs");
-            if (!libDir.exists()) {
-                //noinspection ResultOfMethodCallIgnored
-                libDir.mkdirs();
-            }
-            var oldLibFiles = new LinkedList<>(Arrays.asList(Objects.requireNonNull(libDir.listFiles((dir, name) -> name.endsWith(".jar")))));
-            var allSuccess = true;
-            for (var each : libs) {
-                oldLibFiles.removeIf(file -> file.getName().equals(each.getFile().getName()));
-                if (each.getInfo().isNeedsUpdate()) {
-                    var result = HttpUtils.downloadWithBar("https://assets.powernukkitx.cn/libs/" + each.getInfo().getName(), each.getFile(), each.getInfo().getName(), Main.getTimer());
-                    if (!result) {
-                        allSuccess = false;
-                        System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail-to-update"), each.getInfo().getName())).fgDefault());
-                    }
-                }
-            }
-            //noinspection ResultOfMethodCallIgnored
-            oldLibFiles.forEach(File::delete);
+            var allSuccess = LibsUtils.checkAndUpdate();
             if (allSuccess) {
                 System.out.println(ansi().fgBrightGreen().a(bundle.getString("successfully-update")).fgDefault());
                 return 0;
