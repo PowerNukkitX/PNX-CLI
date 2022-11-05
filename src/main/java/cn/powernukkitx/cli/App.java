@@ -2,14 +2,14 @@ package cn.powernukkitx.cli;
 
 import cn.powernukkitx.cli.cmd.*;
 import cn.powernukkitx.cli.share.CLIConstant;
-import cn.powernukkitx.cli.util.ConfigUtils;
 import cn.powernukkitx.cli.util.InputUtils;
 import cn.powernukkitx.cli.util.OSUtils;
 import picocli.CommandLine;
-import picocli.CommandLine.*;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 import java.util.Formatter;
-import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 
