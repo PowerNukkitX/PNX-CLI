@@ -31,10 +31,10 @@ public final class ServerCommand implements Callable<Integer> {
     private final ResourceBundle bundle = ResourceBundle.getBundle("cn.powernukkitx.cli.cmd.Server");
 
     @Option(names = {"update", "-u", "install", "-i"}, help = true, descriptionKey = "update")
-    boolean update;
+    public boolean update;
 
     @Option(names = "--latest", help = true, descriptionKey = "latest")
-    boolean latest = false;
+    public boolean latest = false;
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
