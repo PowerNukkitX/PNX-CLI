@@ -6,7 +6,7 @@
 
     <groupId>cn.powernukkitx</groupId>
     <artifactId>PNX-CLI</artifactId>
-    <version>0.0.1-alpha</version>
+    <version>0.0.7-alpha</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
