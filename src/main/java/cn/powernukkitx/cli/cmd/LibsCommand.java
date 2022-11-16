@@ -1,9 +1,7 @@
 package cn.powernukkitx.cli.cmd;
 
-import cn.powernukkitx.cli.Main;
 import cn.powernukkitx.cli.data.locator.LibsLocator;
 import cn.powernukkitx.cli.share.CLIConstant;
-import cn.powernukkitx.cli.util.HttpUtils;
 import cn.powernukkitx.cli.util.LibsUtils;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
@@ -11,7 +9,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.io.File;
-import java.util.*;
+import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 
 import static org.fusesource.jansi.Ansi.ansi;
@@ -33,6 +31,11 @@ public final class LibsCommand implements Callable<Integer> {
     @Override
     public Integer call() {
         if (options.update) {
+            var libDir = new File(CLIConstant.userDir, "libs");
+            if (!libDir.exists()) {
+                //noinspection ResultOfMethodCallIgnored
+                libDir.mkdirs();
+            }
             var allSuccess = LibsUtils.checkAndUpdate();
             if (allSuccess) {
                 System.out.println(ansi().fgBrightGreen().a(bundle.getString("successfully-update")).fgDefault());
