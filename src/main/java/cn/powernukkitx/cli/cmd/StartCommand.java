@@ -118,6 +118,15 @@ public final class StartCommand implements Callable<Integer> {
         for (var module : graalModules) {
             cmdBuilder.addModulePath(module.getFile().getAbsolutePath());
         }
+        for (var each : ConfigUtils.addOpens()) {
+            cmdBuilder.addAddOpen(each);
+        }
+        for (var each : ConfigUtils.xOptions()) {
+            cmdBuilder.addXOption(each);
+        }
+        for (var each : ConfigUtils.xxOptions()) {
+            cmdBuilder.addXxOption(each);
+        }
         if (generateOnly) {
             System.out.println(cmdBuilder.build());
             return 0;

@@ -7,10 +7,7 @@ import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class ConfigUtils {
@@ -121,5 +118,20 @@ public final class ConfigUtils {
             hasChanged.set(true);
             return mem;
         }
+    }
+
+    public static String[] addOpens() {
+        return Arrays.stream(configMap.getOrDefault("add-opens", "").split(" "))
+                .filter(e -> !e.isBlank()).distinct().toArray(String[]::new);
+    }
+
+    public static String[] xOptions() {
+        return Arrays.stream(configMap.getOrDefault("x-options", "").split(" "))
+                .filter(e -> !e.isBlank()).distinct().toArray(String[]::new);
+    }
+
+    public static String[] xxOptions() {
+        return Arrays.stream(configMap.getOrDefault("xx-options", "").split(" "))
+                .filter(e -> !e.isBlank()).distinct().toArray(String[]::new);
     }
 }
