@@ -146,7 +146,7 @@ public final class OSUtils {
             var cmd = """
                     reg query "hklm\\system\\controlset001\\control\\nls\\language" /v Installlanguage
                     """;
-            var cmdFile = new File(CLIConstant.programDir + "/locale.cmd");
+            var cmdFile = File.createTempFile("pnx-cli-locate", ".cmd");
             cmdFile.deleteOnExit();
             //noinspection ResultOfMethodCallIgnored
             cmdFile.getParentFile().mkdirs();

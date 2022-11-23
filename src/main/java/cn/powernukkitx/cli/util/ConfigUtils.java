@@ -11,11 +11,24 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class ConfigUtils {
+    public static File globalConfigFile = new File(CLIConstant.programDir, "pnx-cli-config.ini");
     private static Map<String, String> configMap = new LinkedHashMap<>();
     private final static AtomicBoolean hasChanged = new AtomicBoolean(false);
 
     public static void init() {
-        final File configFile = new File(CLIConstant.programDir, "pnx-cli-config.ini");
+        parseConfigFile(globalConfigFile);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (hasChanged.get()) {
+                try (var writer = new BufferedWriter(new FileWriter(globalConfigFile))) {
+                    INIParser.writeINI(configMap, writer);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }));
+    }
+
+    public static void parseConfigFile(File configFile) {
         try (final InputStream stream1 = ConfigUtils.class.getClassLoader()
                 .getResourceAsStream("lang/" + Locale.getDefault().toLanguageTag().toLowerCase() + "/sampleConfig.ini")) {
             if (!configFile.exists() && stream1 != null) {
@@ -48,15 +61,6 @@ public final class ConfigUtils {
                 configMap = new HashMap<>(0);
             }
         }
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if (hasChanged.get()) {
-                try (var writer = new BufferedWriter(new FileWriter(configFile))) {
-                    INIParser.writeINI(configMap, writer);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }));
     }
 
     public static String graalvmVersion() {

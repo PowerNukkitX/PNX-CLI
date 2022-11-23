@@ -78,4 +78,8 @@ public final class StringUtils {
         }
         return str;
     }
+
+    public static boolean notEmpty(String str) {
+        return str == null || str.isBlank();
+    }
 }
