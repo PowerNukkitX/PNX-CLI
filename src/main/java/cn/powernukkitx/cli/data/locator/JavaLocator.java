@@ -100,7 +100,7 @@ public class JavaLocator extends Locator<JavaLocator.JavaInfo> {
             Optional<JavaInfo> jv = getJavaVersion(binDir);
             if (jv.isPresent()) {
                 JavaInfo v = jv.get();
-                if (version != null && !version.equals(v.getMajorVersion())) {
+                if (version != null && !greaterOrEqual(version, v.getMajorVersion())) {
                     continue;
                 }
                 javaExecutableList.add(new Location<>(new File(binDir, "java" + Locator.platformSuffix()), v));
@@ -129,6 +129,16 @@ public class JavaLocator extends Locator<JavaLocator.JavaInfo> {
             });
         }
         return out;
+    }
+
+    private boolean greaterOrEqual(String targetVersion, String givenVersion) {
+        try {
+            var target = Integer.parseInt(targetVersion);
+            var given = Integer.parseInt(givenVersion);
+            return given >= target;
+        } catch (Exception ignore) {
+            return targetVersion.equals(givenVersion);
+        }
     }
 
     private void testSystemJava(List<File> binDirs, Process process) throws InterruptedException, IOException {
