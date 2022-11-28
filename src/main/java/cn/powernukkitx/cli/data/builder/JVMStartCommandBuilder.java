@@ -1,5 +1,6 @@
 package cn.powernukkitx.cli.data.builder;
 
+import cn.powernukkitx.cli.util.StringUtils;
 import com.sun.management.OperatingSystemMXBean;
 
 import java.io.File;
@@ -212,14 +213,14 @@ public final class JVMStartCommandBuilder {
 
     public String build() {
         var sb = new StringBuilder();
-        sb.append(jvmExecutable.getAbsolutePath()).append(" ");
+        sb.append(StringUtils.tryWrapQuotation(jvmExecutable.getAbsolutePath())).append(" ");
         for (var entry : properties.entrySet()) {
-            sb.append("-D").append(entry.getKey()).append("=").append(entry.getValue()).append(" ");
+            sb.append(StringUtils.tryWrapQuotation("-D" + entry.getKey() + "=" + entry.getValue())).append(" ");
         }
         for (var iterator = otherArgs.iterator(); iterator.hasNext(); ) {
             var each = iterator.next();
             if (each.startsWith("-D")) {
-                sb.append(each).append(" ");
+                sb.append(StringUtils.tryWrapQuotation(each)).append(" ");
                 iterator.remove();
             }
         }
@@ -257,15 +258,15 @@ public final class JVMStartCommandBuilder {
                 iterator.remove();
             }
         }
-        sb.append("--module-path=").append(String.join(File.pathSeparator, modulePath)).append(File.pathSeparator).append(" ");
-        sb.append("--upgrade-module-path=").append(String.join(File.pathSeparator, upgradeModulePath)).append(File.pathSeparator).append(" ");
+        sb.append(StringUtils.tryWrapQuotation("--module-path=" + String.join(File.pathSeparator, modulePath) + File.pathSeparator)).append(" ");
+        sb.append(StringUtils.tryWrapQuotation("--upgrade-module-path=" + String.join(File.pathSeparator, upgradeModulePath) + File.pathSeparator)).append(" ");
         for (var entry : addOpens.entrySet()) {
             sb.append("--add-opens ").append(entry.getKey()).append("=").append(entry.getValue()).append(" ");
         }
-        sb.append("-cp ").append(String.join(File.pathSeparator, classPath)).append(" ");
+        sb.append("-cp ").append(StringUtils.tryWrapQuotation(String.join(File.pathSeparator, classPath))).append(" ");
         sb.append(startTarget);
         for (var arg : otherArgs) {
-            sb.append(" ").append(arg);
+            sb.append(" ").append(StringUtils.tryWrapQuotation(arg));
         }
         return sb.toString();
     }
