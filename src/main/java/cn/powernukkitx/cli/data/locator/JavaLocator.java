@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -32,14 +33,18 @@ public class JavaLocator extends Locator<JavaLocator.JavaInfo> {
         final List<Location<JavaInfo>> javaExecutableList = new ArrayList<>();
         final File localJavaDir = new File(CLIConstant.programDir, "java");
         final List<File> binDirs = new ArrayList<>();
-        // 当前文件夹下缓存探测
-        if (localJavaDir.exists()) {
-            final File[] files = localJavaDir.listFiles();
-            if (files != null) {
-                for (File each : files) {
-                    File binDir = new File(each, "bin");
-                    if (binDir.exists() && isJavaDir(binDir)) {
-                        binDirs.add(binDir);
+        { // 探测当前运行环境
+            binDirs.add(new File(System.getProperty("java.home")));
+        }
+        { // 当前文件夹下缓存探测
+            if (localJavaDir.exists()) {
+                final File[] files = localJavaDir.listFiles();
+                if (files != null) {
+                    for (File each : files) {
+                        File binDir = new File(each, "bin");
+                        if (binDir.exists() && isJavaDir(binDir)) {
+                            binDirs.add(binDir);
+                        }
                     }
                 }
             }
@@ -168,7 +173,7 @@ public class JavaLocator extends Locator<JavaLocator.JavaInfo> {
             }
         }
         try {
-            Process process = new ProcessBuilder().command(javaExecutable.getAbsolutePath(), "-version")
+            Process process = new ProcessBuilder().command(StringUtils.tryWrapQuotation(javaExecutable.getAbsolutePath()), "-version")
                     .redirectErrorStream(true).start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             process.waitFor(1000, TimeUnit.MILLISECONDS);
@@ -195,8 +200,34 @@ public class JavaLocator extends Locator<JavaLocator.JavaInfo> {
             process.destroy();
             if (majorVersion != null && vendor != null)
                 return Optional.of(new JavaInfo(majorVersion, fullVersion, vendor));
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException | InterruptedException ignore) {
+
+        }
+        return getJavaVersionByJVMTI(binDir);
+    }
+
+    private Optional<JavaInfo> getJavaVersionByJVMTI(File binDir) {
+        var includeDir = new File(binDir.getParentFile(), "include");
+        if (!includeDir.exists()) {
             return Optional.empty();
+        }
+        var jvmtiFile = new File(includeDir, "jvmti.h");
+        if (!jvmtiFile.exists()) {
+            return Optional.empty();
+        }
+        try {
+            var lines = Files.readAllLines(jvmtiFile.toPath());
+            for (var line : lines) {
+                var tmp = line.trim();
+                if (tmp.startsWith("JVMTI_VERSION = 0x30000000 + (")) {
+                    var i = tmp.indexOf(" * 0x10000");
+                    var majorVersion = tmp.substring(30, i);
+                    var fullVersion = majorVersion + ".0.0";
+                    return Optional.of(new JavaInfo(majorVersion, fullVersion, "Unknown"));
+                }
+            }
+        } catch (Exception ignore) {
+
         }
         return Optional.empty();
     }
