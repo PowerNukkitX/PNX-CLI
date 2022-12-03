@@ -80,7 +80,7 @@ public final class StringUtils {
     }
 
     public static boolean notEmpty(String str) {
-        return str == null || str.isBlank();
+        return str != null && !str.isBlank();
     }
 
     public static String tryWrapQuotation(String str) {
