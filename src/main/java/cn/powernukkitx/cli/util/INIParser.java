@@ -41,8 +41,8 @@ public final class INIParser {
             if (each.getValue() != null) {
                 writer.write("=");
                 writer.write(each.getValue());
-                writer.write("\n");
             }
+            writer.write("\n");
         }
     }
 }
