@@ -34,7 +34,9 @@ public class JavaLocator extends Locator<JavaLocator.JavaInfo> {
         final File localJavaDir = new File(CLIConstant.programDir, "java");
         final List<File> binDirs = new ArrayList<>();
         { // 探测当前运行环境
-            binDirs.add(new File(System.getProperty("java.home")));
+            var javaHome = System.getProperty("java.home");
+            if (javaHome != null)
+                binDirs.add(new File(javaHome));
         }
         { // 当前文件夹下缓存探测
             if (localJavaDir.exists()) {
