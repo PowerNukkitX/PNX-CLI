@@ -203,7 +203,6 @@ jobs:
           path: target/jar
       - name: 创建发行版
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'master')
         with:
           files: |
             target/windows-x86/pnx.exe
