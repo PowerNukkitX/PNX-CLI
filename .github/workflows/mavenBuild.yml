@@ -59,6 +59,9 @@ jobs:
       - name: Maven构建
         run: mvn -B package --file pom.xml
 
+      - id: get-version
+        uses: jactions/maven-version@v1
+
       - name: 配置msvc环境
         uses: ilammy/msvc-dev-cmd@v1
         with:
@@ -69,7 +72,7 @@ jobs:
         run: |
           chcp 936
           cd .\target
-          native-image -jar PNX-CLI-0.0.1-alpha.jar -Dfile.encoding=GBK -H:Name=pnx -H:-CheckToolchain
+          native-image -jar PNX-CLI-${{ steps.get-version.outputs.version }}.jar -Dfile.encoding=GBK -H:Name=pnx -H:-CheckToolchain
 
       - name: 添加图标
         shell: cmd
@@ -112,6 +115,9 @@ jobs:
       - name: Maven构建
         run: mvn -B package --file pom.xml
 
+      - id: get-version
+        uses: jactions/maven-version@v1
+
       - name: 配置GCC环境
         uses: egor-tensin/setup-gcc@v1
         with:
@@ -121,7 +127,7 @@ jobs:
       - name: 本机静态编译
         run: |
           cd target
-          native-image -jar PNX-CLI-0.0.1-alpha.jar -H:Name=pnx
+          native-image -jar PNX-CLI-${{ steps.get-version.outputs.version }}.jar -H:Name=pnx
 
       - name: 上传jar包
         uses: actions/upload-artifact@v2
@@ -148,10 +154,13 @@ jobs:
       - name: Maven构建
         run: mvn -B package --file pom.xml
 
+      - id: get-version
+        uses: jactions/maven-version@v1
+
       - name: 本机静态编译
         run: |
           cd target
-          native-image -jar PNX-CLI-0.0.1-alpha.jar -H:Name=pnx
+          native-image -jar PNX-CLI-${{ steps.get-version.outputs.version }}.jar -H:Name=pnx
 
       - name: 上传可执行文件
         uses: actions/upload-artifact@v2
@@ -166,6 +175,8 @@ jobs:
     if: startsWith(github.ref, 'master') && (contains(needs.check-files.outputs.changed-files, 'src/') || (github.event_name == 'push' && contains(github.event.commits[0].message, '+b')))
 
     steps:
+      - id: get-version
+        uses: jactions/maven-version@v1
       - name: 下载Windows x86可执行文件
         uses: actions/download-artifact@v2
         with:
@@ -186,8 +197,6 @@ jobs:
         with:
           name: PNX-CLI-Jar
           path: target/jar
-      - id: get-version
-        uses: jactions/maven-version@v1
       - name: 创建发行版
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'master')
@@ -196,7 +205,7 @@ jobs:
             target/windows-x86/pnx.exe
             target/linux-x86/pnx
             target/linux-arm/pnx
-            target/jar/PNX-CLI-*.jar
+            target/jar/PNX-CLI-${{ steps.get-version.outputs.version }}.jar
           draft: false
           prerelease: true
           tag_name: ${{ steps.get-version.outputs.version }}
