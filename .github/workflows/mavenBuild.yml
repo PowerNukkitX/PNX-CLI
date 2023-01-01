@@ -171,7 +171,7 @@ jobs:
   release:
     name: 发布发行版
     runs-on: ubuntu-latest
-    needs: [windows-x86-build, linux-x86-build, linux-arm-build]
+    needs: [ windows-x86-build, linux-x86-build, linux-arm-build ]
     if: startsWith(github.ref, 'refs/heads/master')
 
     steps:
@@ -201,6 +201,12 @@ jobs:
         with:
           name: PNX-CLI-Jar
           path: target/jar
+      - name: 压缩可执行文件
+        run: |
+          cd target
+          zip -r PNX-CLI-Windows-x86.zip target/windows-x86/*
+          zip -r PNX-CLI-Linux-x86.zip target/linux-x86/*
+          zip -r PNX-CLI-Linux-arm.zip target/linux-arm/*
       - name: 创建发行版
         uses: softprops/action-gh-release@v1
         with:
