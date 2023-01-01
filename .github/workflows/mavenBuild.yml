@@ -51,7 +51,7 @@ jobs:
       - name: 安装GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
-          version: '22.1.0'
+          version: '22.3.0'
           java-version: '17'
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -107,7 +107,7 @@ jobs:
       - name: 安装GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
-          version: '22.1.0'
+          version: '22.3.0'
           java-version: '17'
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -172,7 +172,7 @@ jobs:
     name: 发布发行版
     runs-on: ubuntu-latest
     needs: [windows-x86-build, linux-x86-build, linux-arm-build]
-    if: startsWith(github.ref, 'master') && (contains(needs.check-files.outputs.changed-files, 'src/') || (github.event_name == 'push' && contains(github.event.commits[0].message, '+b')))
+    if: startsWith(github.ref, 'master')
 
     steps:
       - id: get-version
