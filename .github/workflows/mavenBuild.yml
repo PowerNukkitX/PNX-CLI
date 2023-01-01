@@ -127,7 +127,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: PNX-CLI-Jar
-          path: target/PNX-CLI-0.0.1-alpha.jar
+          path: target/PNX-CLI-*.jar
 
       - name: 上传可执行文件
         uses: actions/upload-artifact@v2
@@ -158,3 +158,47 @@ jobs:
         with:
           name: PNX-CLI-Linux-arm
           path: target/pnx
+
+  release:
+    name: 发布发行版
+    runs-on: ubuntu-latest
+    needs: [windows-x86-build, linux-x86-build, linux-arm-build]
+    if: startsWith(github.ref, 'master') && (contains(needs.check-files.outputs.changed-files, 'src/') || (github.event_name == 'push' && contains(github.event.commits[0].message, '+b')))
+
+    steps:
+      - name: 下载Windows x86可执行文件
+        uses: actions/download-artifact@v2
+        with:
+          name: PNX-CLI-Windows-x86
+          path: target/windows-x86
+      - name: 下载Linux x86可执行文件
+        uses: actions/download-artifact@v2
+        with:
+          name: PNX-CLI-Linux-x86
+          path: target/windows-x86
+      - name: 下载Linux arm可执行文件
+        uses: actions/download-artifact@v2
+        with:
+          name: PNX-CLI-Linux-arm
+          path: target/windows-arm
+      - name: 下载jar包
+        uses: actions/download-artifact@v2
+        with:
+          name: PNX-CLI-Jar
+          path: target/jar
+      - id: get-version
+        uses: jactions/maven-version@v1
+      - name: 创建发行版
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'master')
+        with:
+          files: |
+            target/windows-x86/pnx.exe
+            target/linux-x86/pnx
+            target/linux-arm/pnx
+            target/jar/PNX-CLI-*.jar
+          draft: false
+          prerelease: true
+          tag_name: ${{ steps.get-version.outputs.version }}
+          name: PNX-CLI v${{ steps.get-version.outputs.version }}
+          body: ${{ github.sha }}
