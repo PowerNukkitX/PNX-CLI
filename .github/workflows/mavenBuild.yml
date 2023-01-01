@@ -60,7 +60,7 @@ jobs:
         run: mvn -B package --file pom.xml
 
       - id: get-version
-        uses: jactions/maven-version@v1
+        uses: jactions/maven-version@v1.2.0
 
       - name: 配置msvc环境
         uses: ilammy/msvc-dev-cmd@v1
@@ -116,7 +116,7 @@ jobs:
         run: mvn -B package --file pom.xml
 
       - id: get-version
-        uses: jactions/maven-version@v1
+        uses: jactions/maven-version@v1.2.0
 
       - name: 配置GCC环境
         uses: egor-tensin/setup-gcc@v1
@@ -155,7 +155,7 @@ jobs:
         run: mvn -B package --file pom.xml
 
       - id: get-version
-        uses: jactions/maven-version@v1
+        uses: jactions/maven-version@v1.2.0
 
       - name: 本机静态编译
         run: |
@@ -176,7 +176,7 @@ jobs:
 
     steps:
       - id: get-version
-        uses: jactions/maven-version@v1
+        uses: jactions/maven-version@v1.2.0
       - name: 下载Windows x86可执行文件
         uses: actions/download-artifact@v2
         with:
