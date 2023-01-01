@@ -172,9 +172,9 @@ jobs:
     name: 发布发行版
     runs-on: ubuntu-latest
     needs: [windows-x86-build, linux-x86-build, linux-arm-build]
-    if: startsWith(github.ref, 'master')
 
     steps:
+      - run: echo ${{ github.ref }}
       - id: get-version
         uses: jactions/maven-version@v1.2.0
       - name: 下载Windows x86可执行文件
