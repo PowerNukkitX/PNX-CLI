@@ -210,9 +210,9 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            target/windows-x86/pnx.exe
-            target/linux-x86/pnx-x86
-            target/linux-arm/pnx-arm64
+            PNX-CLI-Windows-x86.zip
+            PNX-CLI-Linux-x86.zip
+            PNX-CLI-Linux-arm.zip
             target/jar/PNX-CLI-${{ steps.get-version.outputs.version }}.jar
           draft: false
           prerelease: true
