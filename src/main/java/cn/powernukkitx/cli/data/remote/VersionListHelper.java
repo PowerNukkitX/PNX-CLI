@@ -103,6 +103,10 @@ public final class VersionListHelper {
             }
         }
 
+        if (out.size() == 0) {
+            throw new IllegalArgumentException("Failed to parse the libs list, raw xml: \n" + xml);
+        }
+
         if ("".equals(out.get(0).getLibName())) {
             out.remove(0);
         }

@@ -211,8 +211,8 @@ jobs:
         with:
           files: |
             target/windows-x86/pnx.exe
-            target/linux-x86/pnx
-            target/linux-arm/pnx
+            target/linux-x86/pnx-x86
+            target/linux-arm/pnx-arm64
             target/jar/PNX-CLI-${{ steps.get-version.outputs.version }}.jar
           draft: false
           prerelease: true
