@@ -6,7 +6,7 @@ import java.io.File;
 import java.util.List;
 
 public interface CLIConstant {
-    String version = "0.0.8.2";
+    String version = "0.0.8.3";
     List<String> authors = List.of("超神的冰凉");
     File userDir = new File(System.getProperty("user.dir"));
     File programDir = new File(OSUtils.getProgramDir());

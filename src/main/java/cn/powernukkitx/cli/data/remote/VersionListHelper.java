@@ -35,7 +35,7 @@ public final class VersionListHelper {
             var request = HttpRequest.newBuilder(URI.create(OSS + "?" +
                     "list-type=2" + "&" +
                     "prefix=" + category + "/&" +
-                    "max-keys=30" + "&" +
+                    "max-keys=999" + "&" +
                     "delimiter=/")).GET().build();
             final var result = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)).body();
             cache.put(category, result);
