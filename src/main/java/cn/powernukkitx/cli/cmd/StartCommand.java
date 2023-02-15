@@ -60,12 +60,13 @@ public final class StartCommand implements Callable<Integer> {
         System.out.println(ansi().fgBrightYellow().a(new Formatter().format(bundle.getString("using-jvm"), java.getInfo().getVendor())).fgDefault());
         var pnxList = new JarLocator(CLIConstant.userDir, "cn.nukkit.api.PowerNukkitXOnly").locate();
 
+        //auto install
         if (pnxList.size() == 0) {
             try {
                 System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-pnx"), OSUtils.getProgramName())).fgDefault());
                 var download = new ServerCommand();
                 download.update = true;
-                download.latest = false;
+                download.latest = true;
                 download.call();
             } catch (ParseException e) {
                 e.printStackTrace();
@@ -81,12 +82,7 @@ public final class StartCommand implements Callable<Integer> {
         var oldLibFiles = new LinkedList<>(Arrays.asList(Objects.requireNonNull(libDir.listFiles((dir, name) -> name.endsWith(".jar")))));
         if (oldLibFiles.size() < 32) {
             System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-libs"), OSUtils.getProgramName())).fgDefault());
-            System.out.println(ansi().fgBrightRed().a(new Formatter().format("1: true")).fgDefault());
-            System.out.println(ansi().fgBrightRed().a(new Formatter().format("2: false")).fgDefault());
-            var input = InputUtils.readLine();
-            if (input.charAt(0) == '1' || input.charAt(0) == 'T' || input.charAt(0) == 't' || input.equals("true") || input.equals("TRUE")) {
-                LibsUtils.checkAndUpdate();
-            }
+            LibsUtils.checkAndUpdate();
         }
 
         var pnx = pnxList.get(0);
