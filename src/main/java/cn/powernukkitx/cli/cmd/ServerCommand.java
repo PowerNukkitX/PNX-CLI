@@ -35,10 +35,15 @@ public final class ServerCommand implements Callable<Integer> {
     @Option(names = "--latest", help = true, descriptionKey = "latest")
     public boolean latest = false;
 
+    @Option(names = "--dev", help = true, descriptionKey = "dev")
+    public boolean dev = false;
+
     @Override
     public Integer call() throws ParseException {
         if (update) {
-            if (latest) {
+            if (dev) {
+                return updateDev();
+            } else if (latest) {
                 return updateLatest();
             } else {
                 return updateAllVersion();
@@ -91,14 +96,28 @@ public final class ServerCommand implements Callable<Integer> {
         }
     }
 
-    public @NotNull Integer downloadCore(String displayName, ReleaseBean release) {
+    public @NotNull Integer updateDev() {
+        System.out.println(ansi().fgBrightYellow().a(bundle.getString("dev-warning")).fgDefault());
+        String displayName = "PowerNukkitX-Core Unknown";
+        try {
+            // 获取最新构建
+            var latestBuild = VersionListHelperV2.getLatestBuild();
+            var coreArtifact = latestBuild.core();
+            displayName = "PowerNukkitX-Core dev (" + commonTimeFormat.format(coreArtifact.createAt()) + ")";
+            return downloadCore(displayName, "PowerNukkitX-dev.jar", coreArtifact);
+        } catch (IOException | InterruptedException e) {
+            System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail-to-install"), displayName)).fgDefault());
+            e.printStackTrace();
+            return 1;
+        }
+    }
+
+    public @NotNull Integer downloadCore(String displayName, String fileName, ArtifactBean coreArtifact) {
         // 删除旧的核心文件
         //noinspection ResultOfMethodCallIgnored
         new JarLocator(CLIConstant.userDir, "cn.nukkit.api.PowerNukkitXOnly").locate().forEach(each -> each.getFile().delete());
-        // 查找核心工件
-        var coreArtifact = getCoreArtifact(release);
         var result = HttpUtils.downloadWithBar(coreArtifact.downloadId(),
-                new File(CLIConstant.userDir, "PowerNukkitX-" + release.tagName() + ".jar"), displayName,
+                new File(CLIConstant.userDir, fileName), displayName,
                 coreArtifact.sizeInBytes(), Main.getTimer());
         if (result) {
             System.out.println(ansi().fgBrightGreen().a(new Formatter().format(bundle.getString("successfully-installed"), displayName)).fgDefault());
@@ -107,6 +126,10 @@ public final class ServerCommand implements Callable<Integer> {
             System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail-to-install"), displayName)).fgDefault());
             return 1;
         }
+    }
+
+    public @NotNull Integer downloadCore(String displayName, ReleaseBean release) {
+        return downloadCore(displayName, "PowerNukkitX-" + release.tagName() + ".jar", getCoreArtifact(release));
     }
 
     private static @NotNull ArtifactBean getCoreArtifact(@NotNull ReleaseBean release) {

@@ -1,5 +1,6 @@
 package cn.powernukkitx.cli.data.remote;
 
+import cn.powernukkitx.cli.data.bean.BuildBean;
 import cn.powernukkitx.cli.data.bean.ReleaseBean;
 import com.google.gson.JsonParser;
 import org.jetbrains.annotations.NotNull;
@@ -37,4 +38,10 @@ public final class VersionListHelperV2 {
         return releases;
     }
 
+    public static @NotNull BuildBean getLatestBuild() throws IOException, InterruptedException {
+        var client = HttpClient.newHttpClient();
+        var request = HttpRequest.newBuilder(URI.create(API_URL + "/git/latest-build/PowerNukkitX/PowerNukkitX")).GET().build();
+        var result = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)).body();
+        return BuildBean.from(JsonParser.parseString(result).getAsJsonObject());
+    }
 }
