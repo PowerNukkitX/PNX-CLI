@@ -1,8 +1,13 @@
 package cn.powernukkitx.cli.util;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.net.URL;
 
 public final class StringUtils {
+    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+
     public static String beforeLast(String str, String splitter) {
         final int i = str.lastIndexOf(splitter);
         if (i == -1) return str;

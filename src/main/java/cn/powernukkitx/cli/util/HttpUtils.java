@@ -24,8 +24,18 @@ public final class HttpUtils {
     }
 
     private static final ResourceBundle bundle = ResourceBundle.getBundle("cn.powernukkitx.cli.util.Http");
+    public static final String DOWNLOAD_API = "https://www.powernukkitx.com/api/download";
+
+
+    public static boolean downloadWithBar(long downloadId, File target, String displayName, long estimatedSize, Timer timer) {
+        return downloadWithBar(DOWNLOAD_API + "/" + downloadId, target, displayName, estimatedSize, timer);
+    }
 
     public static boolean downloadWithBar(String downloadURL, File target, String displayName, Timer timer) {
+        return downloadWithBar(downloadURL, target, displayName, 0, timer);
+    }
+
+    public static boolean downloadWithBar(String downloadURL, File target, String displayName, long estimatedSize, Timer timer) {
         try {
             var client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.ALWAYS).build();
             var request = HttpRequest.newBuilder(URI.create(downloadURL)).GET().build();
@@ -65,7 +75,7 @@ public final class HttpUtils {
             try (var fos = new FileOutputStream(target)) {
                 var response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
                 try (var fis = response.body()) {
-                    contentLength.set(response.headers().firstValueAsLong("Content-Length").orElse(0));
+                    contentLength.set(response.headers().firstValueAsLong("Content-Length").orElse(estimatedSize));
                     fis.transferTo(fos);
                 }
             }

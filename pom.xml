@@ -6,7 +6,7 @@
 
     <groupId>cn.powernukkitx</groupId>
     <artifactId>PNX-CLI</artifactId>
-    <version>0.0.8</version>
+    <version>0.1.0.0</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -40,6 +40,12 @@
             <groupId>org.kamranzafar</groupId>
             <artifactId>jtar</artifactId>
             <version>2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>23.1.0</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
