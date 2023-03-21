@@ -1,17 +1,27 @@
 package cn.powernukkitx.cli.cmd;
 
+import cn.powernukkitx.cli.Main;
+import cn.powernukkitx.cli.data.bean.ReleaseBean;
+import cn.powernukkitx.cli.data.bean.RemoteFileBean;
 import cn.powernukkitx.cli.data.locator.LibsLocator;
+import cn.powernukkitx.cli.data.remote.VersionListHelperV2;
 import cn.powernukkitx.cli.share.CLIConstant;
+import cn.powernukkitx.cli.util.FileUtils;
+import cn.powernukkitx.cli.util.HttpUtils;
+import cn.powernukkitx.cli.util.InputUtils;
 import cn.powernukkitx.cli.util.LibsUtils;
+import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.io.File;
-import java.util.ResourceBundle;
+import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.Callable;
 
+import static cn.powernukkitx.cli.util.StringUtils.commonTimeFormat;
 import static org.fusesource.jansi.Ansi.ansi;
 
 @Command(name = "libs", mixinStandardHelpOptions = true, resourceBundle = "cn.powernukkitx.cli.cmd.Libs")
@@ -24,46 +34,204 @@ public final class LibsCommand implements Callable<Integer> {
     static class AllOptions {
         @Option(names = {"update", "-u", "fix", "-f"}, help = true, descriptionKey = "update")
         boolean update;
-        @Option(names = "check", help = true, descriptionKey = "check")
+        @Option(names = {"check", "-c"}, help = true, descriptionKey = "check")
         boolean check;
+    }
+
+    @ArgGroup(multiplicity = "1")
+    VersionOptions versionOptions;
+
+    static class VersionOptions {
+        @Option(names = "--latest", help = true, descriptionKey = "latest")
+        public boolean latest = false;
+        @Option(names = "--dev", help = true, descriptionKey = "")
+        public boolean dev = false;
     }
 
     @Override
     public Integer call() {
-        if (options.update) {
+        if (options != null && options.update) {
             var libDir = new File(CLIConstant.userDir, "libs");
             if (!libDir.exists()) {
                 //noinspection ResultOfMethodCallIgnored
                 libDir.mkdirs();
             }
-            var allSuccess = LibsUtils.checkAndUpdate();
-            if (allSuccess) {
-                System.out.println(ansi().fgBrightGreen().a(bundle.getString("successfully-update")).fgDefault());
-                return 0;
+            if (versionOptions != null && versionOptions.dev) {
+                return updateDev(false);
+            } else if (versionOptions != null && versionOptions.latest) {
+                return updateLatest(false);
             } else {
-                return 1;
+                return updateAllVersion(false);
             }
-        } else if (options.check) {
-            var libs = new LibsLocator().locate();
-            for (var each : libs) {
-                var ansi = ansi();
-                if (each.getInfo().isNeedsUpdate()) {
-                    if (each.getFile().exists()) {
-                        ansi.fgBrightYellow();
-                    } else {
-                        ansi.fgBrightRed();
-                    }
-                    ansi.a("- ");
-                } else {
-                    ansi.fgBrightGreen().a("+ ");
-                }
-                ansi.a(each.getInfo().getName()).fgDefault();
-                System.out.println(ansi);
+        } else if (options != null && options.check) {
+            if (versionOptions != null && versionOptions.latest) {
+                return updateLatest(true);
+            } else if (versionOptions != null && versionOptions.dev) {
+                return updateDev(true);
+            } else {
+                return updateAllVersion(true);
             }
-            return 0;
         } else {
             CommandLine.usage(this, System.out);
         }
+        return 0;
+    }
+
+    public @NotNull Integer updateLatest(boolean check) {
+        System.out.println(ansi().fgBrightYellow().a(bundle.getString("fetching-manifest")).fgDefault());
+        var future = VersionListHelperV2.getLatestReleaseLibs();
+        var remoteFileBeanMap = future.exceptionally(throwable -> {
+            System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-to-get-manifest")).fgDefault());
+            throwable.printStackTrace();
+            return null;
+        }).join();
+        if (remoteFileBeanMap == null) {
+            return 1;
+        } else {
+            if (check) {
+                return check(remoteFileBeanMap);
+            } else {
+                return install(remoteFileBeanMap);
+            }
+        }
+    }
+
+    public @NotNull Integer updateDev(boolean check) {
+        System.out.println(ansi().fgBrightYellow().a(bundle.getString("fetching-manifest")).fgDefault());
+        var future = VersionListHelperV2.getLatestBuildLibs();
+        var remoteFileBeanMap = future.exceptionally(throwable -> {
+            System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-to-get-manifest")).fgDefault());
+            throwable.printStackTrace();
+            return null;
+        }).join();
+        if (remoteFileBeanMap == null) {
+            return 1;
+        } else {
+            if (check) {
+                return check(remoteFileBeanMap);
+            } else {
+                return install(remoteFileBeanMap);
+            }
+        }
+    }
+
+    public @NotNull Integer updateAllVersion(boolean check) {
+        // 获取所有版本
+        ReleaseBean[] allReleases;
+        try {
+            allReleases = VersionListHelperV2.getAllReleases();
+        } catch (IOException | InterruptedException e) {
+            System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-to-get-version-list")).fgDefault());
+            e.printStackTrace();
+            return -1;
+        }
+        System.out.println(ansi().fgBrightDefault().a(bundle.getString("available-version")).fgDefault());
+        for (int i = 0, len = allReleases.length; i < len; i++) {
+            var entry = allReleases[i];
+            var time = commonTimeFormat.format(entry.publishedAt());
+            System.out.println((i + 1) + ". " + entry.tagName() + " (" + time + ")");
+        }
+        // 等待用户选择
+        var index = InputUtils.readIndex(bundle.getString("choose-version")) - 1;
+        if (index < 0 || index >= allReleases.length) {
+            System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("invalid-index"), allReleases.length)).fgDefault());
+            return 1;
+        }
+        var release = allReleases[index];
+        System.out.println(ansi().fgBrightYellow().a(bundle.getString("fetching-manifest")).fgDefault());
+        var future = VersionListHelperV2.getReleaseLibsFromArtifact(Arrays.stream(release.artifacts())
+                .filter(artifact -> artifact.name().equalsIgnoreCase("libs.tar.gz")).findFirst().orElseThrow());
+        var remoteFileBeanMap = future.exceptionally(throwable -> {
+            System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-to-get-manifest")).fgDefault());
+            throwable.printStackTrace();
+            return null;
+        }).join();
+        if (remoteFileBeanMap == null) {
+            return 1;
+        } else {
+            if (check) {
+                return check(remoteFileBeanMap);
+            } else {
+                return install(remoteFileBeanMap);
+            }
+        }
+    }
+
+    public @NotNull Integer check(Map<String, RemoteFileBean> remoteFileBeanMap) {
+        var libDir = new File(CLIConstant.userDir, "libs");
+        if (!libDir.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            libDir.mkdirs();
+        }
+        var remoteFileBeanMapCopy = new HashMap<>(remoteFileBeanMap);
+        for (var childFile : Objects.requireNonNull(libDir.listFiles())) {
+            if (remoteFileBeanMapCopy.containsKey(childFile.getName())) {
+                var remoteFileBean = remoteFileBeanMapCopy.remove(childFile.getName());
+                try {
+                    if (FileUtils.getMD5(childFile).equals(remoteFileBean.md5())) {
+                        System.out.println(ansi().fgBrightGreen().a("+ ").a(childFile.getName()).fgDefault());
+                    } else {
+                        System.out.println(ansi().fgBrightYellow().a("~ ").a(childFile.getName()).fgDefault());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println(ansi().fgBrightRed().a("- ").a(childFile.getName()).fgDefault());
+            }
+        }
+        for (var remoteFileBean : remoteFileBeanMapCopy.values()) {
+            System.out.println(ansi().fgBrightRed().a("+ ").a(remoteFileBean.fileName()).fgDefault());
+        }
+        return 0;
+    }
+
+    public @NotNull Integer install(Map<String, RemoteFileBean> remoteFileBeanMap) {
+        var libDir = new File(CLIConstant.userDir, "libs");
+        if (!libDir.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            libDir.mkdirs();
+        }
+        var remoteFileBeanMapCopy = new HashMap<>(remoteFileBeanMap);
+        for (var childFile : Objects.requireNonNull(libDir.listFiles())) {
+            if (remoteFileBeanMapCopy.containsKey(childFile.getName())) {
+                var remoteFileBean = remoteFileBeanMapCopy.remove(childFile.getName());
+                try {
+                    if (!FileUtils.getMD5(childFile).equals(remoteFileBean.md5())) {
+                        var result = childFile.delete();
+                        if (!result) {
+                            System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-to-update")
+                                    .formatted(remoteFileBean.fileName())).fgDefault());
+                            continue;
+                        }
+                        HttpUtils.downloadWithBar(HttpUtils.DOWNLOAD_API + "/" + remoteFileBean.downloadID(),
+                                childFile, remoteFileBean.fileName(), Main.getTimer());
+                    }
+                } catch (IOException e) {
+                    System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-to-update")
+                            .formatted(remoteFileBean.fileName())).fgDefault());
+                    e.printStackTrace();
+                }
+            } else {
+                var result = childFile.delete();
+                if (!result) {
+                    System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-to-update")
+                            .formatted(childFile.getName())).fgDefault());
+                }
+            }
+        }
+        for (var remoteFileBean : remoteFileBeanMapCopy.values()) {
+            var file = new File(libDir, remoteFileBean.fileName());
+            try {
+                HttpUtils.downloadWithBar(HttpUtils.DOWNLOAD_API + "/" + remoteFileBean.downloadID(),
+                        file, remoteFileBean.fileName(), Main.getTimer());
+            } catch (Exception e) {
+                System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-to-update")
+                        .formatted(remoteFileBean.fileName())).fgDefault());
+                e.printStackTrace();
+            }
+        }
+        System.out.println(ansi().fgBrightGreen().a(bundle.getString("successfully-update")).fgDefault());
         return 0;
     }
 }

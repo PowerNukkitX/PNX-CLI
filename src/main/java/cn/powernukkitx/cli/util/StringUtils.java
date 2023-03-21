@@ -4,8 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.net.URL;
+import java.text.SimpleDateFormat;
 
 public final class StringUtils {
+    public static final SimpleDateFormat commonTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public static String beforeLast(String str, String splitter) {
@@ -16,6 +18,12 @@ public final class StringUtils {
 
     public static String afterFirst(String str, String splitter) {
         final int i = str.indexOf(splitter);
+        if (i == -1) return str;
+        return str.substring(i + 1);
+    }
+
+    public static String afterLast(String str, String splitter) {
+        final int i = str.lastIndexOf(splitter);
         if (i == -1) return str;
         return str.substring(i + 1);
     }

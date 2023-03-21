@@ -22,11 +22,11 @@ import java.util.Formatter;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 
+import static cn.powernukkitx.cli.util.StringUtils.commonTimeFormat;
 import static org.fusesource.jansi.Ansi.ansi;
 
 @Command(name = "server", mixinStandardHelpOptions = true, resourceBundle = "cn.powernukkitx.cli.cmd.Server")
 public final class ServerCommand implements Callable<Integer> {
-    public static final SimpleDateFormat commonTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final ResourceBundle bundle = ResourceBundle.getBundle("cn.powernukkitx.cli.cmd.Server");
 
     @Option(names = {"update", "-u", "install", "-i"}, help = true, descriptionKey = "update")

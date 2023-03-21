@@ -2,9 +2,12 @@ package cn.powernukkitx.cli.util;
 
 import cn.powernukkitx.cli.share.CLIConstant;
 import com.sun.management.OperatingSystemMXBean;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.lang.management.ManagementFactory;
+import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
@@ -137,5 +140,17 @@ public final class ConfigUtils {
     public static String[] xxOptions() {
         return Arrays.stream(configMap.getOrDefault("xx-options", "").split(" "))
                 .filter(e -> !e.isBlank()).distinct().toArray(String[]::new);
+    }
+
+    public static @Nullable InetSocketAddress httpProxy() {
+        String proxy = configMap.get("http-proxy");
+        if (proxy == null || proxy.isBlank()) {
+            return null;
+        }
+        String[] split = proxy.split(":");
+        if (split.length != 2) {
+            return null;
+        }
+        return new InetSocketAddress(split[0], Integer.parseInt(split[1]));
     }
 }

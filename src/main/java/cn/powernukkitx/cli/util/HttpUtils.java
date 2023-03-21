@@ -1,17 +1,23 @@
 package cn.powernukkitx.cli.util;
 
+import cn.powernukkitx.cli.data.bean.RequestIDBean;
 import org.fusesource.jansi.AnsiConsole;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.Formatter;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static cn.powernukkitx.cli.util.ConfigUtils.debug;
@@ -25,7 +31,55 @@ public final class HttpUtils {
 
     private static final ResourceBundle bundle = ResourceBundle.getBundle("cn.powernukkitx.cli.util.Http");
     public static final String DOWNLOAD_API = "https://www.powernukkitx.com/api/download";
+    public static final String QUERY_API = "https://www.powernukkitx.com/api/delayed/query";
 
+    public static HttpClient client = null;
+
+    public static HttpClient getClient() {
+        if (client == null) {
+            var builder = HttpClient.newBuilder()
+                    .connectTimeout(Duration.ofSeconds(10))
+                    .followRedirects(HttpClient.Redirect.NORMAL);
+            if (ConfigUtils.httpProxy() != null) {
+                builder.proxy(ProxySelector.of(ConfigUtils.httpProxy()));
+            }
+            client = builder.build();
+        }
+        return client;
+    }
+
+    public static @NotNull CompletableFuture<String> getDelayedResponse(@NotNull Timer timer, RequestIDBean requestIDBean) {
+        var completableFuture = new CompletableFuture<String>();
+        var timerTask = new TimerTask() {
+            private int retry = 0;
+
+            @Override
+            public void run() {
+                try {
+                    this.retry++;
+                    var request = HttpRequest.newBuilder(URI.create(QUERY_API + "/" + requestIDBean.uuid())).GET().build();
+                    var response = getClient().send(request, HttpResponse.BodyHandlers.ofString());
+                    if (response.statusCode() == 200) {
+                        completableFuture.complete(response.body());
+                        this.cancel();
+                        completableFuture.complete(response.body());
+                    }
+                    if (response.statusCode() == 404) {
+                        completableFuture.completeExceptionally(new IllegalAccessError("404"));
+                        this.cancel();
+                    }
+                    if (this.retry > 40) {
+                        completableFuture.completeExceptionally(new IllegalAccessError("Retry too many times"));
+                        this.cancel();
+                    }
+                } catch (Exception e) {
+                    completableFuture.completeExceptionally(e);
+                }
+            }
+        };
+        timer.schedule(timerTask, 200, 500);
+        return completableFuture;
+    }
 
     public static boolean downloadWithBar(long downloadId, File target, String displayName, long estimatedSize, Timer timer) {
         return downloadWithBar(DOWNLOAD_API + "/" + downloadId, target, displayName, estimatedSize, timer);
@@ -37,7 +91,7 @@ public final class HttpUtils {
 
     public static boolean downloadWithBar(String downloadURL, File target, String displayName, long estimatedSize, Timer timer) {
         try {
-            var client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.ALWAYS).build();
+            var client = getClient();
             var request = HttpRequest.newBuilder(URI.create(downloadURL)).GET().build();
             System.out.println(ansi().fgBrightDefault().a(new Formatter().format(bundle.getString("connecting"), downloadURL)).fgDefault().toString());
             System.out.println();
