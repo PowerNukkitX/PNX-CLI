@@ -15,10 +15,13 @@ The sub-list is the parameter body, and the main list is the command body.
   - --stdin=xxx&emsp;Read console input from the specified file (xxx input the file address, from pnx-cli current path)
 - pnx server
   - --latest&emsp;Install the latest version of pnx core
-  - -u&emsp;Install or upgrade PNX server core (manual selection required)
+  - --dev&emsp;Install the development version of pnx core
+  - install / update&emsp;Install or upgrade PNX server core (manual selection required)
 - pnx libs
-  - -u&emsp;Install or update dependent libraries
-  - -v&emsp;Check if the dependency library is up to date
+  - -u / update&emsp;Install or update dependent libraries
+  - -c / check&emsp;Check if the dependency library is up to date
+  - --latest&emsp;Install the latest version of the dependency library
+  - --dev&emsp;Install the development version of the dependency library
 - pnx jvm
   - check&emsp;View the installed JVMs
   - remote&emsp;Lists all available JVM in the PNX remote repository
