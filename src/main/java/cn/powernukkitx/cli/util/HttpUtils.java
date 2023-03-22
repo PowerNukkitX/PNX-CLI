@@ -6,17 +6,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.net.InetSocketAddress;
 import java.net.ProxySelector;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.Formatter;
-import java.util.ResourceBundle;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -30,8 +26,11 @@ public final class HttpUtils {
     }
 
     private static final ResourceBundle bundle = ResourceBundle.getBundle("cn.powernukkitx.cli.util.Http");
-    public static final String DOWNLOAD_API = "https://www.powernukkitx.com/api/download";
-    public static final String QUERY_API = "https://www.powernukkitx.com/api/delayed/query";
+    public static final Map<String, String> API_ADDRESSES = Map.of(
+            "official", "www.powernukkitx.com",
+            "nullatom", "pnx.nullatom.com"
+    );
+    private static String selectedApi = null;
 
     public static HttpClient client = null;
 
@@ -48,6 +47,53 @@ public final class HttpUtils {
         return client;
     }
 
+    public static @NotNull String getAPIUrl() {
+        return getAPIUrl("");
+    }
+
+    public record EndpointAndPing(String endpoint, long ping) {
+    }
+
+    public static @NotNull String getAPIUrl(@NotNull String path) {
+        if (selectedApi == null) {
+            if (ConfigUtils.apiEndpoint() != null) {
+                selectedApi = ConfigUtils.apiEndpoint();
+                Logger.info(bundle.getString("using-source").formatted(selectedApi));
+            } else {
+                Logger.info(ansi().fgBrightYellow().a(bundle.getString("detecting")));
+                // ping and find the fastest API endpoint use /api/ping
+                var pingList = pingAPIEndpoints().values();
+                // if any api endpoint is available, return it
+                var result = ((EndpointAndPing) CompletableFuture.anyOf(pingList.toArray(CompletableFuture[]::new)).join());
+                for (var future : pingList) {
+                    if (!future.isDone()) future.cancel(true);
+                }
+                selectedApi = result.endpoint();
+                ConfigUtils.set("api-endpoint", selectedApi);
+                Logger.info(ansi().fgBrightGreen().a(bundle.getString("selected-source-lag").formatted(selectedApi, result.ping())));
+            }
+        }
+        return "https://" + API_ADDRESSES.get(selectedApi) + "/api" + path;
+    }
+
+    public static @NotNull Map<String, CompletableFuture<EndpointAndPing>> pingAPIEndpoints() {
+        var pingList = new LinkedHashMap<String, CompletableFuture<EndpointAndPing>>();
+        for (var entry : API_ADDRESSES.entrySet()) {
+            var request = HttpRequest.newBuilder()
+                    .GET()
+                    .uri(URI.create("https://" + entry.getValue() + "/api/ping"))
+                    .build();
+            try {
+                var future = getClient().sendAsync(request, HttpResponse.BodyHandlers.discarding());
+                var start = System.currentTimeMillis();
+                pingList.put(entry.getKey(), future.thenApply(response -> ((System.currentTimeMillis() - start) / 2))
+                        .exceptionally(e -> Long.MAX_VALUE).thenApply(e -> new EndpointAndPing(entry.getKey(), e)));
+            } catch (Exception ignore) {
+            }
+        }
+        return pingList;
+    }
+
     public static @NotNull CompletableFuture<String> getDelayedResponse(@NotNull Timer timer, RequestIDBean requestIDBean) {
         var completableFuture = new CompletableFuture<String>();
         var timerTask = new TimerTask() {
@@ -57,7 +103,7 @@ public final class HttpUtils {
             public void run() {
                 try {
                     this.retry++;
-                    var request = HttpRequest.newBuilder(URI.create(QUERY_API + "/" + requestIDBean.uuid())).GET().build();
+                    var request = HttpRequest.newBuilder(URI.create(getAPIUrl("/delayed/query/") + requestIDBean.uuid())).GET().build();
                     var response = getClient().send(request, HttpResponse.BodyHandlers.ofString());
                     if (response.statusCode() == 200) {
                         completableFuture.complete(response.body());
@@ -82,7 +128,7 @@ public final class HttpUtils {
     }
 
     public static boolean downloadWithBar(long downloadId, File target, String displayName, long estimatedSize, Timer timer) {
-        return downloadWithBar(DOWNLOAD_API + "/" + downloadId, target, displayName, estimatedSize, timer);
+        return downloadWithBar(getAPIUrl("/download/") + downloadId, target, displayName, estimatedSize, timer);
     }
 
     public static boolean downloadWithBar(String downloadURL, File target, String displayName, Timer timer) {

@@ -27,7 +27,8 @@ import static org.fusesource.jansi.Ansi.ansi;
         ServerCommand.class,
         LibsCommand.class,
         StartCommand.class,
-        ComponentsCommand.class
+        ComponentsCommand.class,
+        PingCommand.class
 })
 public final class App implements Callable<Integer> {
 

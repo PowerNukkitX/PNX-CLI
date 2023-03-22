@@ -15,23 +15,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-public final class VersionListHelperV2 {
-    public static final String API_URL = "https://www.powernukkitx.com/api";
+import static cn.powernukkitx.cli.util.HttpUtils.getAPIUrl;
 
+public final class VersionListHelperV2 {
     private VersionListHelperV2() {
         throw new UnsupportedOperationException();
     }
 
     public static @NotNull ReleaseBean getLatestRelease() throws IOException, InterruptedException {
         var client = HttpUtils.getClient();
-        var request = HttpRequest.newBuilder(URI.create(API_URL + "/git/latest-release/PowerNukkitX/PowerNukkitX")).GET().build();
+        var request = HttpRequest.newBuilder(URI.create(getAPIUrl() + "/git/latest-release/PowerNukkitX/PowerNukkitX")).GET().build();
         var result = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)).body();
         return ReleaseBean.from(JsonParser.parseString(result).getAsJsonObject());
     }
 
     public static @NotNull ReleaseBean @NotNull [] getAllReleases() throws IOException, InterruptedException {
         var client = HttpUtils.getClient();
-        var request = HttpRequest.newBuilder(URI.create(API_URL + "/git/all-releases/PowerNukkitX/PowerNukkitX")).GET().build();
+        var request = HttpRequest.newBuilder(URI.create(getAPIUrl() + "/git/all-releases/PowerNukkitX/PowerNukkitX")).GET().build();
         var result = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)).body();
         var jsonArray = JsonParser.parseString(result).getAsJsonArray();
         var releases = new ReleaseBean[jsonArray.size()];
@@ -43,14 +43,14 @@ public final class VersionListHelperV2 {
 
     public static @NotNull BuildBean getLatestBuild() throws IOException, InterruptedException {
         var client = HttpUtils.getClient();
-        var request = HttpRequest.newBuilder(URI.create(API_URL + "/git/latest-build/PowerNukkitX/PowerNukkitX")).GET().build();
+        var request = HttpRequest.newBuilder(URI.create(getAPIUrl() + "/git/latest-build/PowerNukkitX/PowerNukkitX")).GET().build();
         var result = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)).body();
         return BuildBean.from(JsonParser.parseString(result).getAsJsonObject());
     }
 
     public static @NotNull CompletableFuture<Map<String, RemoteFileBean>> getLatestReleaseLibs() {
         var client = HttpUtils.getClient();
-        var request = HttpRequest.newBuilder(URI.create(API_URL + "/git/latest-release/PowerNukkitX/PowerNukkitX")).GET().build();
+        var request = HttpRequest.newBuilder(URI.create(getAPIUrl() + "/git/latest-release/PowerNukkitX/PowerNukkitX")).GET().build();
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8))
                 .thenApply(HttpResponse::body)
                 .thenApply(JsonParser::parseString)
@@ -68,7 +68,7 @@ public final class VersionListHelperV2 {
 
     public static @NotNull CompletableFuture<Map<String, RemoteFileBean>> getLatestBuildLibs() {
         var client = HttpUtils.getClient();
-        var request = HttpRequest.newBuilder(URI.create(API_URL + "/git/latest-build/PowerNukkitX/PowerNukkitX")).GET().build();
+        var request = HttpRequest.newBuilder(URI.create(getAPIUrl() + "/git/latest-build/PowerNukkitX/PowerNukkitX")).GET().build();
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8))
                 .thenApply(HttpResponse::body)
                 .thenApply(JsonParser::parseString)
@@ -79,7 +79,7 @@ public final class VersionListHelperV2 {
     public static @NotNull CompletableFuture<Map<String, RemoteFileBean>> getReleaseLibsFromArtifact(@NotNull ArtifactBean artifactBean) {
         var client = HttpUtils.getClient();
         var decompressRequest = HttpRequest.newBuilder()
-                .uri(URI.create(API_URL + "/download/decompress/" + artifactBean.downloadId()))
+                .uri(URI.create(getAPIUrl() + "/download/decompress/" + artifactBean.downloadId()))
                 .GET()
                 .build();
         return client.sendAsync(decompressRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8))

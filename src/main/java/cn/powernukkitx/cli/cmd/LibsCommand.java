@@ -3,13 +3,11 @@ package cn.powernukkitx.cli.cmd;
 import cn.powernukkitx.cli.Main;
 import cn.powernukkitx.cli.data.bean.ReleaseBean;
 import cn.powernukkitx.cli.data.bean.RemoteFileBean;
-import cn.powernukkitx.cli.data.locator.LibsLocator;
 import cn.powernukkitx.cli.data.remote.VersionListHelperV2;
 import cn.powernukkitx.cli.share.CLIConstant;
 import cn.powernukkitx.cli.util.FileUtils;
 import cn.powernukkitx.cli.util.HttpUtils;
 import cn.powernukkitx.cli.util.InputUtils;
-import cn.powernukkitx.cli.util.LibsUtils;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
@@ -44,7 +42,7 @@ public final class LibsCommand implements Callable<Integer> {
     static class VersionOptions {
         @Option(names = "--latest", help = true, descriptionKey = "latest")
         public boolean latest = false;
-        @Option(names = "--dev", help = true, descriptionKey = "")
+        @Option(names = "--dev", help = true, descriptionKey = "dev")
         public boolean dev = false;
     }
 
@@ -204,7 +202,7 @@ public final class LibsCommand implements Callable<Integer> {
                                     .formatted(remoteFileBean.fileName())).fgDefault());
                             continue;
                         }
-                        HttpUtils.downloadWithBar(HttpUtils.DOWNLOAD_API + "/" + remoteFileBean.downloadID(),
+                        HttpUtils.downloadWithBar(HttpUtils.getAPIUrl("/download/") + remoteFileBean.downloadID(),
                                 childFile, remoteFileBean.fileName(), Main.getTimer());
                     }
                 } catch (IOException e) {
@@ -223,7 +221,7 @@ public final class LibsCommand implements Callable<Integer> {
         for (var remoteFileBean : remoteFileBeanMapCopy.values()) {
             var file = new File(libDir, remoteFileBean.fileName());
             try {
-                HttpUtils.downloadWithBar(HttpUtils.DOWNLOAD_API + "/" + remoteFileBean.downloadID(),
+                HttpUtils.downloadWithBar(HttpUtils.getAPIUrl("/download/") + remoteFileBean.downloadID(),
                         file, remoteFileBean.fileName(), Main.getTimer());
             } catch (Exception e) {
                 System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-to-update")
