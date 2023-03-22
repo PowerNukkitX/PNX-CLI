@@ -143,21 +143,8 @@ public final class OSUtils {
 
     public static Locale getWindowsLocale() {
         try {
-            var cmd = """
-                    reg query "hklm\\system\\controlset001\\control\\nls\\language" /v Installlanguage
-                    """;
-            var cmdFile = File.createTempFile("pnx-cli-locate", ".cmd");
-            cmdFile.deleteOnExit();
-            //noinspection ResultOfMethodCallIgnored
-            cmdFile.getParentFile().mkdirs();
-            if (!cmdFile.exists()) {
-                //noinspection ResultOfMethodCallIgnored
-                cmdFile.createNewFile();
-                try (var writer = new FileWriter(cmdFile)) {
-                    writer.write(cmd);
-                }
-            }
-            var process = new ProcessBuilder().command(cmdFile.getAbsolutePath())
+            var process = new ProcessBuilder().command("C:\\Windows\\System32\\reg.exe", "query",
+                            "\"hklm\\system\\controlset001\\control\\nls\\language\"", "/v", "Installlanguage")
                     .redirectErrorStream(true).start();
             process.waitFor(2500, TimeUnit.MILLISECONDS);
             try(var reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
@@ -165,13 +152,14 @@ public final class OSUtils {
                 while ((s = reader.readLine()) != null) {
                     if (s.contains("0804")) {
                         return Locale.forLanguageTag("zh-cn");
-                    } else if (s.contains("0409 ")) {
+                    } else if (s.contains("0409")) {
                         return Locale.forLanguageTag("en-us");
                     }
                 }
             }
         } catch (IOException | InterruptedException e) {
             //ignore
+            e.printStackTrace();
         }
         return null;
     }
