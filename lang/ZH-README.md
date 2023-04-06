@@ -20,11 +20,15 @@ linux使用./pnx运行
   - -u&emsp;安装或更新依赖库
   - -v&emsp;检测依赖库是否为最新
 - pnx jvm
-  - check&emsp;查看已经安装了的JVM。
+  - check&emsp;查看已经安装了的JVM
   - remote&emsp;列出PNX远程仓库中的所有可用JVM。
   - install=name&emsp;根据输入的型号名称安装新的JVM。(名称从上面的指令查询)
   - uninstall&emsp;根据输入的序号卸载已经安装了的JVM。
 - pnx comp
-  - -c&emsp;检查可用的附加组件。
+  - -c&emsp;检查可用的附加组件
   - -i=name&emsp;根据输入名称安装或修复附加组件。(名称从上面的指令查询)
-- pnx about&emsp;PowerNukkitX CLI的信息。
+- sys-install&emsp;在系统路径中安装或卸载PNX
+  - -u&emsp;从系统路径中移除PNX-CLI
+- pnx about&emsp;PowerNukkitX CLI的信息
+- pnx sponsor&emsp;查看赞助PNX的大佬们
+- pnx ping&emsp;检查本机到PNX服务器各端点的网络情况
