@@ -30,4 +30,8 @@ The sub-list is the parameter body, and the main list is the command body.
 - pnx comp
   - -c&emsp;Check for available addons。
   - -i=name&emsp;Install or repair the addon according to the entered name. (The name is checked from the command above)
+- sys-install&emsp;Installing or uninstalling PNX in the system path
+  - -u&emsp;Uninstalling PNX-CLI from the system path
 - pnx about&emsp;Information about the PowerNukkitX CLI
+- pnx sponsor&emsp;View all sponsors of PNX
+- pnx ping&emsp;Check the network status from local to each endpoint of the PNX server
