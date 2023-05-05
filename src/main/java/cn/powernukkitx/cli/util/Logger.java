@@ -16,12 +16,12 @@ public final class Logger {
 
     public static void info(String msg) {
         System.out.println(ansi().fgBrightBlue().a(LocalDateTime.now().format(formatter))
-                .fgDefault().a(" [").fgBlue().a("INFO ").fgDefault().a("] ").fgDefault().a(msg).reset());
+                .fgDefault().a(" [").fgCyan().a("INFO ").fgDefault().a("] ").fgDefault().a(msg).reset());
     }
 
     public static void info(Ansi msg) {
         System.out.println(ansi().fgBrightBlue().a(LocalDateTime.now().format(formatter))
-                .fgDefault().a(" [").fgBlue().a("INFO ").fgDefault().a("] ").fgDefault().a(msg).reset());
+                .fgDefault().a(" [").fgCyan().a("INFO ").fgDefault().a("] ").fgDefault().a(msg).reset());
     }
 
     public static void warn(String msg) {
