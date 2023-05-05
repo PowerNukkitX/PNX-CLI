@@ -86,7 +86,7 @@ public final class JVMCommand implements Callable<Integer> {
                     ansi.a("(").a(size).a(")\n");
                 }
             }
-            System.out.println(ansi);
+            Logger.info(ansi);
             return 0;
         } else if (options.install != null && !options.install.isBlank()) {
             var vms = getVMList();
@@ -122,7 +122,7 @@ public final class JVMCommand implements Callable<Integer> {
                     size = obj.get("size").getAsString();
                 }
                 if ("".equals(url) || "unknown".equals(size)) {
-                    System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-this-arch"),
+                    Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-this-arch"),
                             options.install, os.name().toLowerCase(), arch)).fgDefault().toString());
                     return 1;
                 } else {
@@ -141,7 +141,7 @@ public final class JVMCommand implements Callable<Integer> {
                                 zipFile.close();
                             } catch (IOException e) {
                                 e.printStackTrace();
-                                System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-to-uncompress")).fgDefault().toString());
+                                Logger.error(ansi().fgBrightRed().a(bundle.getString("fail-to-uncompress")).fgDefault().toString());
                                 return 1;
                             }
                         } else if (suffix.endsWith("tar.gz")) {
@@ -149,36 +149,36 @@ public final class JVMCommand implements Callable<Integer> {
                                 GzipUtils.uncompressTGzipFile(tmpFile, localJavaDir);
                             } catch (IOException e) {
                                 e.printStackTrace();
-                                System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-to-uncompress")).fgDefault().toString());
+                                Logger.error(ansi().fgBrightRed().a(bundle.getString("fail-to-uncompress")).fgDefault().toString());
                                 return 1;
                             }
                         }
-                        System.out.println(ansi().fgBrightGreen().a(new Formatter().format(bundle.getString("successfully-install"), options.install)).fgDefault().toString());
+                        Logger.info(ansi().fgBrightGreen().a(new Formatter().format(bundle.getString("successfully-install"), options.install)).fgDefault().toString());
                         return 0;
                     } else {
-                        System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail-to-install"), options.install)).fgDefault().toString());
+                        Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail-to-install"), options.install)).fgDefault().toString());
                         return 1;
                     }
                 }
             } else {
-                System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("vm-not-found"), OSUtils.getProgramName())).fgDefault().toString());
+                Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("vm-not-found"), OSUtils.getProgramName())).fgDefault().toString());
                 return 1;
             }
         } else if (options.uninstall) {
             var JVMs = printJVMs();
             var index = InputUtils.readIndex(bundle.getString("uninstall-index")) - 1;
             if (index >= JVMs.size()) {
-                System.out.println(ansi().fgBrightRed().a(bundle.getString("index-out-of-range")).fgDefault().toString());
+                Logger.error(ansi().fgBrightRed().a(bundle.getString("index-out-of-range")).fgDefault().toString());
                 return 1;
             } else {
                 var vmInfo = JVMs.get(index);
                 var vmFolder = vmInfo.getFile().getParentFile().getParentFile();
                 FileUtils.deleteDir(vmFolder);
                 if (!vmInfo.getFile().exists()) {
-                    System.out.println(ansi().fgBrightGreen().a(new Formatter().format(bundle.getString("successfully-uninstall"), vmInfo.getInfo().getVendor())).fgDefault().toString());
+                    Logger.info(ansi().fgBrightGreen().a(new Formatter().format(bundle.getString("successfully-uninstall"), vmInfo.getInfo().getVendor())).fgDefault().toString());
                     return 0;
                 } else {
-                    System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail-to-uninstall"), vmInfo.getInfo().getVendor())).fgDefault().toString());
+                    Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail-to-uninstall"), vmInfo.getInfo().getVendor())).fgDefault().toString());
                     return 1;
                 }
             }
@@ -221,7 +221,7 @@ public final class JVMCommand implements Callable<Integer> {
                     .a(" - ").fgBrightCyan().a("java ").a(each.getInfo().getMajorVersion()).fgDefault().a("\n   ")
                     .a(each.getFile().getAbsolutePath()).a("\n").toString());
         }
-        System.out.println(out);
+        Logger.info(out.toString());
         return javaLocations;
     }
 }

@@ -8,6 +8,7 @@ import cn.powernukkitx.cli.data.remote.VersionListHelperV2;
 import cn.powernukkitx.cli.share.CLIConstant;
 import cn.powernukkitx.cli.util.HttpUtils;
 import cn.powernukkitx.cli.util.InputUtils;
+import cn.powernukkitx.cli.util.Logger;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -16,7 +17,6 @@ import picocli.CommandLine.Option;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Formatter;
 import java.util.ResourceBundle;
@@ -62,7 +62,7 @@ public final class ServerCommand implements Callable<Integer> {
             displayName = "PowerNukkitX-Core v" + release.tagName();
             return downloadCore(displayName, release);
         } catch (IOException | InterruptedException e) {
-            System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail-to-install"), displayName)).fgDefault());
+            Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail-to-install"), displayName)).fgDefault());
             e.printStackTrace();
             return 1;
         }
@@ -73,11 +73,11 @@ public final class ServerCommand implements Callable<Integer> {
         try {
             // 获取所有版本
             var allReleases = VersionListHelperV2.getAllReleases();
-            System.out.println(ansi().fgBrightDefault().a(bundle.getString("available-version")).fgDefault());
+            Logger.info(ansi().fgBrightDefault().a(bundle.getString("available-version")).fgDefault());
             for (int i = 0, len = allReleases.length; i < len; i++) {
                 var entry = allReleases[i];
                 var time = commonTimeFormat.format(entry.publishedAt());
-                System.out.println((i + 1) + ". " + entry.tagName() + " (" + time + ")");
+                Logger.info((i + 1) + ". " + entry.tagName() + " (" + time + ")");
             }
             // 等待用户选择
             var index = InputUtils.readIndex(bundle.getString("choose-version")) - 1;
@@ -90,14 +90,14 @@ public final class ServerCommand implements Callable<Integer> {
             displayName = "PowerNukkitX-Core v" + release.tagName();
             return downloadCore(displayName, release);
         } catch (IOException | InterruptedException e) {
-            System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail-to-install"), displayName)).fgDefault());
+            Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail-to-install"), displayName)).fgDefault());
             e.printStackTrace();
             return 1;
         }
     }
 
     public @NotNull Integer updateDev() {
-        System.out.println(ansi().fgBrightYellow().a(bundle.getString("dev-warning")).fgDefault());
+        Logger.warn(ansi().fgBrightYellow().a(bundle.getString("dev-warning")).fgDefault());
         String displayName = "PowerNukkitX-Core Unknown";
         try {
             // 获取最新构建
@@ -106,7 +106,7 @@ public final class ServerCommand implements Callable<Integer> {
             displayName = "PowerNukkitX-Core dev (" + commonTimeFormat.format(coreArtifact.createAt()) + ")";
             return downloadCore(displayName, "PowerNukkitX-dev.jar", coreArtifact);
         } catch (IOException | InterruptedException e) {
-            System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail-to-install"), displayName)).fgDefault());
+            Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail-to-install"), displayName)).fgDefault());
             e.printStackTrace();
             return 1;
         }
@@ -120,10 +120,10 @@ public final class ServerCommand implements Callable<Integer> {
                 new File(CLIConstant.userDir, fileName), displayName,
                 coreArtifact.sizeInBytes(), Main.getTimer());
         if (result) {
-            System.out.println(ansi().fgBrightGreen().a(new Formatter().format(bundle.getString("successfully-installed"), displayName)).fgDefault());
+            Logger.info(ansi().fgBrightGreen().a(new Formatter().format(bundle.getString("successfully-installed"), displayName)).fgDefault());
             return 0;
         } else {
-            System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail-to-install"), displayName)).fgDefault());
+            Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail-to-install"), displayName)).fgDefault());
             return 1;
         }
     }

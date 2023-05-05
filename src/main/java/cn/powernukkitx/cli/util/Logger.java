@@ -43,4 +43,8 @@ public final class Logger {
         System.out.println(ansi().fgBrightBlue().a(LocalDateTime.now().format(formatter))
                 .fgDefault().a(" [").fgBrightRed().a("ERROR").fgDefault().a("] ").fgDefault().a(msg).reset());
     }
+
+    public static void raw(String msg) {
+        System.out.println(msg);
+    }
 }

@@ -7,10 +7,7 @@ import cn.powernukkitx.cli.data.locator.GraalModuleLocator;
 import cn.powernukkitx.cli.data.locator.JarLocator;
 import cn.powernukkitx.cli.data.locator.JavaLocator;
 import cn.powernukkitx.cli.share.CLIConstant;
-import cn.powernukkitx.cli.util.ConfigUtils;
-import cn.powernukkitx.cli.util.InputUtils;
-import cn.powernukkitx.cli.util.LibsUtils;
-import cn.powernukkitx.cli.util.OSUtils;
+import cn.powernukkitx.cli.util.*;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -52,18 +49,18 @@ public final class StartCommand implements Callable<Integer> {
         }
         var javaList = new JavaLocator("17", true).locate();
         if (javaList.size() == 0) {
-            System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-java17"), OSUtils.getProgramName())).fgDefault());
+            Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-java17"), OSUtils.getProgramName())).fgDefault());
             return 1;
         }
         var java = javaList.get(0);
         cmdBuilder.setJvmExecutable(java.getFile());
-        System.out.println(ansi().fgBrightYellow().a(new Formatter().format(bundle.getString("using-jvm"), java.getInfo().getVendor())).fgDefault());
+        Logger.info(ansi().fgBrightYellow().a(new Formatter().format(bundle.getString("using-jvm"), java.getInfo().getVendor())).fgDefault());
         var pnxList = new JarLocator(CLIConstant.userDir, "cn.nukkit.api.PowerNukkitXOnly").locate();
 
         //auto install
         if (pnxList.size() == 0) {
             try {
-                System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-pnx"), OSUtils.getProgramName())).fgDefault());
+                Logger.warn(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-pnx"), OSUtils.getProgramName())).fgDefault());
                 var download = new ServerCommand();
                 download.update = true;
                 download.latest = true;
@@ -81,13 +78,18 @@ public final class StartCommand implements Callable<Integer> {
         }
         var oldLibFiles = new LinkedList<>(Arrays.asList(Objects.requireNonNull(libDir.listFiles((dir, name) -> name.endsWith(".jar")))));
         if (oldLibFiles.size() < 32) {
-            System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-libs"), OSUtils.getProgramName())).fgDefault());
-            LibsUtils.checkAndUpdate();
+            Logger.warn(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-libs"), OSUtils.getProgramName())).fgDefault());
+            var libs = new LibsCommand();
+            libs.options = new LibsCommand.AllOptions();
+            libs.options.update = true;
+            libs.versionOptions = new LibsCommand.VersionOptions();
+            libs.versionOptions.latest = true;
+            libs.call();
         }
 
         var pnx = pnxList.get(0);
         cmdBuilder.addClassPath(pnx.getFile().getAbsolutePath());
-        System.out.println(ansi().fgBrightYellow().a(new Formatter().format(bundle.getString("using-pnx"), Ok(pnx.getInfo().getGitInfo().orElse(null), info -> info.getMainVersion() + " - " + info.getCommitID(), "unknown"))).fgDefault());
+        Logger.info(ansi().fgBrightYellow().a(new Formatter().format(bundle.getString("using-pnx"), Ok(pnx.getInfo().getGitInfo().orElse(null), info -> info.getMainVersion() + " - " + info.getCommitID(), "unknown"))).fgDefault());
         cmdBuilder.setStartTarget("cn.nukkit.Nukkit");
         cmdBuilder.addClassPath(new File(CLIConstant.userDir, "libs").getAbsolutePath() + File.separator + "*");
         cmdBuilder.addAddOpen("java.base/java.lang");
@@ -124,7 +126,7 @@ public final class StartCommand implements Callable<Integer> {
             cmdBuilder.addXxOption(each);
         }
         if (generateOnly) {
-            System.out.println(cmdBuilder.build());
+            Logger.raw(cmdBuilder.build());
             return 0;
         }
         cmdBuilder.addProperty("pnx.cli.path", OSUtils.getProgramPath());

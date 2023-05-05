@@ -13,7 +13,7 @@ public final class InputUtils {
     }
 
     public static int readIndex(String prompt) {
-        System.out.print(prompt + " ");
+        Logger.info(prompt + " ");
         var scanner = new Scanner(System.in);
         return scanner.nextInt();
     }
@@ -27,7 +27,7 @@ public final class InputUtils {
     }
 
     public static void pressEnterToContinue() {
-        System.out.println(bundle.getString("press-enter-to-continue"));
+        Logger.info(bundle.getString("press-enter-to-continue"));
         try {
             //noinspection ResultOfMethodCallIgnored
             System.in.read();
@@ -37,7 +37,7 @@ public final class InputUtils {
     }
 
     public static boolean pressEnterToStopWithTimeLimit(long timeLimit) {
-        System.out.println(ansi().fgBrightDefault().bold().a(bundle.getString("press-enter-to-stop-with-time-limit")).fgDefault().boldOff());
+        Logger.info(ansi().fgBrightDefault().bold().a(bundle.getString("press-enter-to-stop-with-time-limit")).fgDefault().boldOff());
         try {
             var startTime = System.currentTimeMillis();
             while (System.currentTimeMillis() - startTime < timeLimit) {

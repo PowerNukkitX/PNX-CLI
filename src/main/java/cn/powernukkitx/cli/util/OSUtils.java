@@ -93,54 +93,6 @@ public final class OSUtils {
         }
     }
 
-    public static boolean setWindowsEnv(EnvEntry... entries) throws IOException, InterruptedException {
-        var batBuilder = new StringBuilder("""
-                @echo off
-                                
-                :: BatchGotAdmin
-                :-------------------------------------
-                REM  -->  Check for permissions
-                >nul 2>&1 "%SYSTEMROOT%\\system32\\cacls.exe" "%SYSTEMROOT%\\system32\\config\\system"
-                                
-                REM --> If error flag set, we do not have admin.
-                if '%errorlevel%' NEQ '0' (
-                    echo Requesting administrative privileges...
-                    goto UACPrompt
-                ) else ( goto gotAdmin )
-                                
-                :UACPrompt
-                    echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\\getadmin.vbs"
-                    echo UAC.ShellExecute "%~s0", "", "", "runas", 1 >> "%temp%\\getadmin.vbs"
-                                
-                    "%temp%\\getadmin.vbs"
-                    exit /B
-                                
-                :gotAdmin
-                    if exist "%temp%\\getadmin.vbs" ( del "%temp%\\getadmin.vbs" )
-                    pushd "%CD%"
-                    CD /D "%~dp0"
-                :--------------------------------------
-                                
-                @echo on
-                """);
-        for (var each : entries) {
-            batBuilder.append("setx \"").append(each.key()).append("\" \"").append(each.value()).append("\"\n");
-        }
-        batBuilder.append("echo pnxEnvOK\n");
-        var batFile = File.createTempFile("pnxBat", ".bat");
-        batFile.deleteOnExit();
-        Files.writeString(batFile.toPath(), batBuilder.toString());
-        System.out.println(batBuilder);
-        var resultFile = File.createTempFile("pnxBuffer", null);
-        resultFile.deleteOnExit();
-        var process = new ProcessBuilder("\"" + batFile.getAbsolutePath() + "\"")
-                .redirectOutput(resultFile).start();
-        process.waitFor(30, TimeUnit.SECONDS);
-        var result = Files.readString(resultFile.toPath());
-        System.out.println(result);
-        return result.contains("pnxEnvOK");
-    }
-
     public static Locale getWindowsLocale() {
         try {
             var process = new ProcessBuilder().command("C:\\Windows\\System32\\reg.exe", "query",

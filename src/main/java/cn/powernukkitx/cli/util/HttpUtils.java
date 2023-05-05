@@ -139,8 +139,8 @@ public final class HttpUtils {
         try {
             var client = getClient();
             var request = HttpRequest.newBuilder(URI.create(downloadURL)).GET().build();
-            System.out.println(ansi().fgBrightDefault().a(new Formatter().format(bundle.getString("connecting"), downloadURL)).fgDefault().toString());
-            System.out.println();
+            Logger.info(ansi().fgBrightDefault().a(new Formatter().format(bundle.getString("connecting"), downloadURL)).fgDefault().toString());
+            Logger.raw("");
             var contentLength = new AtomicLong();
             var atomicLong = new AtomicLong(0);
             var task = new TimerTask() {
@@ -181,10 +181,10 @@ public final class HttpUtils {
             }
             AnsiConsole.out().println(ansi().saveCursorPosition().cursorUpLine().eraseLine());
             task.cancel();
-            System.out.println(ansi().fgBrightGreen().a(new Formatter().format(bundle.getString("success"), displayName)).fgDefault());
+            Logger.info(ansi().fgBrightGreen().a(new Formatter().format(bundle.getString("success"), displayName)).fgDefault());
             return true;
         } catch (Exception e) {
-            System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail"), displayName)).fgDefault());
+            Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail"), displayName)).fgDefault());
             if (debug()) {
                 e.printStackTrace();
             }

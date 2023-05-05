@@ -4,6 +4,7 @@ import cn.powernukkitx.cli.Main;
 import cn.powernukkitx.cli.data.locator.ComponentsLocator;
 import cn.powernukkitx.cli.share.CLIConstant;
 import cn.powernukkitx.cli.util.HttpUtils;
+import cn.powernukkitx.cli.util.Logger;
 import cn.powernukkitx.cli.util.OSUtils;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
@@ -11,7 +12,6 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Formatter;
 import java.util.Objects;
@@ -48,7 +48,7 @@ public final class ComponentsCommand implements Callable<Integer> {
                     ansi.fgBrightRed().a("- ");
                 }
                 ansi.a(each.getInfo().getName()).fgDefault().a(" - ").bold().a(each.getInfo().getVersion()).fgDefault().boldOff().a("  ").a(each.getInfo().getDescription());
-                System.out.println(ansi);
+                Logger.info(ansi);
             }
             return 0;
         } else if (options.update != null && !options.update.isBlank()) {
@@ -61,7 +61,7 @@ public final class ComponentsCommand implements Callable<Integer> {
             for (var each : componentList) {
                 var componentInfo = each.getInfo();
                 if (componentInfo.getName().equalsIgnoreCase(options.update)) {
-                    System.out.println(ansi().fgBrightYellow().a(new Formatter().format(bundle.getString("installing"), componentInfo.getName() + " - " + componentInfo.getVersion())).fgDefault());
+                    Logger.info(ansi().fgBrightYellow().a(new Formatter().format(bundle.getString("installing"), componentInfo.getName() + " - " + componentInfo.getVersion())).fgDefault());
                     for (var clearFileName : componentInfo.getClearFiles()) {
                         var file = new File(CLIConstant.userDir, clearFileName);
                         if (file.exists()) {
@@ -77,15 +77,15 @@ public final class ComponentsCommand implements Callable<Integer> {
                         ok = ok && HttpUtils.downloadWithBar(compFile.getDownloadPath(), new File(CLIConstant.userDir, compFile.getFileName()), componentInfo.getName() + " - " + componentInfo.getVersion(), Main.getTimer());
                     }
                     if (ok) {
-                        System.out.println(ansi().fgBrightGreen().a(new Formatter().format(bundle.getString("successfully-update"), componentInfo.getName() + " - " + componentInfo.getVersion())).fgDefault());
+                        Logger.info(ansi().fgBrightGreen().a(new Formatter().format(bundle.getString("successfully-update"), componentInfo.getName() + " - " + componentInfo.getVersion())).fgDefault());
                         return 0;
                     } else {
-                        System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail-to-update"), componentInfo.getName() + " - " + componentInfo.getVersion())).fgDefault());
+                        Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail-to-update"), componentInfo.getName() + " - " + componentInfo.getVersion())).fgDefault());
                         return 1;
                     }
                 }
             }
-            System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("component-not-found"), OSUtils.getProgramName())).fgDefault());
+            Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("component-not-found"), OSUtils.getProgramName())).fgDefault());
             return 1;
         } else {
             CommandLine.usage(this, System.out);

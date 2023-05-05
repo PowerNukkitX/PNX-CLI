@@ -2,10 +2,7 @@ package cn.powernukkitx.cli;
 
 import cn.powernukkitx.cli.cmd.*;
 import cn.powernukkitx.cli.share.CLIConstant;
-import cn.powernukkitx.cli.util.ConfigUtils;
-import cn.powernukkitx.cli.util.InputUtils;
-import cn.powernukkitx.cli.util.OSUtils;
-import cn.powernukkitx.cli.util.StringUtils;
+import cn.powernukkitx.cli.util.*;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -51,13 +48,13 @@ public final class App implements Callable<Integer> {
                 ConfigUtils.globalConfigFile = file;
                 ConfigUtils.parseConfigFile(file);
             } else {
-                System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("invalid-file"), configFilePath)).fgDefault());
+                Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("invalid-file"), configFilePath)).fgDefault());
             }
         }
         var start = new StartCommand();
         start.args = args;
         if (args != null && args.length != 0) {
-            System.out.println(ansi().fgBrightYellow().a(new Formatter().format(bundle.getString("args"), OSUtils.getProgramName())).fgDefault());
+            Logger.error(ansi().fgBrightYellow().a(new Formatter().format(bundle.getString("args"), OSUtils.getProgramName())).fgDefault());
             CommandLine.usage(this, System.out);
             return 1;
         }

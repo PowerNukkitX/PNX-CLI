@@ -1,9 +1,10 @@
 package cn.powernukkitx.cli.cmd;
 
 import cn.powernukkitx.cli.util.EnumOS;
+import cn.powernukkitx.cli.util.Logger;
 import cn.powernukkitx.cli.util.OSUtils;
-import org.fusesource.jansi.Ansi;
-import picocli.CommandLine.*;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,11 +26,11 @@ public final class SysInstallCommand implements Callable<Integer> {
     public Integer call() {
         var os = OSUtils.getOS();
         if (!"Substrate VM".equals(System.getProperty("java.vm.name"))) {
-            System.out.println(ansi().fgBrightRed().a(bundle.getString("executable-only")).fgDefault().toString());
+            Logger.error(ansi().fgBrightRed().a(bundle.getString("executable-only")).fgDefault().toString());
             return 1;
         }
         if (os == EnumOS.UNKNOWN || os == EnumOS.MACOS) {
-            System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("unsupportedOS"), System.getProperty("os.name"))).fgDefault().toString());
+            Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("unsupportedOS"), System.getProperty("os.name"))).fgDefault().toString());
             return 1;
         }
         if (uninstall) {
@@ -40,17 +41,17 @@ public final class SysInstallCommand implements Callable<Integer> {
                     try {
                         boolean ok = OSUtils.removeWindowsPath(programDir);
                         if (ok) {
-                            System.out.println(ansi().fgBrightGreen().a(bundle.getString("success-uninstall")).fgDefault().toString());
-                            System.out.println(ansi().fgBrightGreen().a(bundle.getString("windows-cmd")).fgDefault().toString());
+                            Logger.info(ansi().fgBrightGreen().a(bundle.getString("success-uninstall")).fgDefault().toString());
+                            Logger.info(ansi().fgBrightGreen().a(bundle.getString("windows-cmd")).fgDefault().toString());
                             return 0;
                         }
                     } catch (IOException | InterruptedException e) {
                         e.printStackTrace();
                     }
-                    System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-uninstall")).fgDefault().toString());
+                    Logger.error(ansi().fgBrightRed().a(bundle.getString("fail-uninstall")).fgDefault().toString());
                     return 1;
                 } else {
-                    System.out.println(ansi().fgBrightGreen().a(bundle.getString("have-not")).fgDefault().toString());
+                    Logger.info(ansi().fgBrightGreen().a(bundle.getString("have-not")).fgDefault().toString());
                     return 0;
                 }
             }
@@ -59,27 +60,27 @@ public final class SysInstallCommand implements Callable<Integer> {
                 var sysPath = System.getenv("PATH");
                 var programDir = OSUtils.getProgramDir();
                 if (sysPath.contains(programDir)) {
-                    System.out.println(ansi().fgBrightGreen().a(bundle.getString("already")).fgDefault().toString());
+                    Logger.info(ansi().fgBrightGreen().a(bundle.getString("already")).fgDefault().toString());
                     return 0;
                 } else {
                     try {
                         boolean ok = OSUtils.addWindowsPath(programDir);
                         if (ok) {
-                            System.out.println(ansi().fgBrightGreen().a(bundle.getString("success")).fgDefault().toString());
-                            System.out.println(ansi().fgBrightGreen().a(bundle.getString("windows-cmd")).fgDefault().toString());
+                            Logger.info(ansi().fgBrightGreen().a(bundle.getString("success")).fgDefault().toString());
+                            Logger.info(ansi().fgBrightGreen().a(bundle.getString("windows-cmd")).fgDefault().toString());
                             return 0;
                         }
                     } catch (IOException | InterruptedException e) {
                         e.printStackTrace();
                     }
-                    System.out.println(ansi().fgBrightRed().a(bundle.getString("fail")).fgDefault().toString());
+                    Logger.error(ansi().fgBrightRed().a(bundle.getString("fail")).fgDefault().toString());
                     return 1;
                 }
             } else if (os == EnumOS.LINUX) {
                 var sysPath = System.getenv("PATH");
                 var programDir = OSUtils.getProgramDir();
                 if (sysPath.contains(programDir)) {
-                    System.out.println(ansi().fgBrightGreen().a(bundle.getString("already")).fgDefault().toString());
+                    Logger.info(ansi().fgBrightGreen().a(bundle.getString("already")).fgDefault().toString());
                     return 0;
                 } else {
                     try {
@@ -89,7 +90,7 @@ public final class SysInstallCommand implements Callable<Integer> {
                             profilePath = homeDir + "/.bash_profile";
                         }
                         if (!Files.exists(Path.of(profilePath))) {
-                            System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("unsupportedOS"), System.getProperty("os.name"))).fgDefault().toString());
+                            Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("unsupportedOS"), System.getProperty("os.name"))).fgDefault().toString());
                             return 1;
                         }
                         var profile = Files.readAllLines(Path.of(profilePath));
@@ -106,13 +107,13 @@ public final class SysInstallCommand implements Callable<Integer> {
                             profile.add("export PATH=" + programDir + ":$PATH");
                         }
                         Files.write(Path.of(profilePath), profile);
-                        System.out.println(ansi().fgBrightGreen().a(bundle.getString("success")).fgDefault().toString());
-                        System.out.println(ansi().fgBrightGreen().a(new Formatter().format(bundle.getString("linux-cmd"), profilePath)).fgDefault().toString());
+                        Logger.info(ansi().fgBrightGreen().a(bundle.getString("success")).fgDefault().toString());
+                        Logger.info(ansi().fgBrightGreen().a(new Formatter().format(bundle.getString("linux-cmd"), profilePath)).fgDefault().toString());
                         return 0;
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    System.out.println(ansi().fgBrightRed().a(bundle.getString("fail")).fgDefault().toString());
+                    Logger.error(ansi().fgBrightRed().a(bundle.getString("fail")).fgDefault().toString());
                     return 1;
                 }
             }

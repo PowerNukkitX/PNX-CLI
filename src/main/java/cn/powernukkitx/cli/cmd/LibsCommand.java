@@ -8,6 +8,7 @@ import cn.powernukkitx.cli.share.CLIConstant;
 import cn.powernukkitx.cli.util.FileUtils;
 import cn.powernukkitx.cli.util.HttpUtils;
 import cn.powernukkitx.cli.util.InputUtils;
+import cn.powernukkitx.cli.util.Logger;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
@@ -76,10 +77,10 @@ public final class LibsCommand implements Callable<Integer> {
     }
 
     public @NotNull Integer updateLatest(boolean check) {
-        System.out.println(ansi().fgBrightYellow().a(bundle.getString("fetching-manifest")).fgDefault());
+        Logger.info(ansi().fgBrightYellow().a(bundle.getString("fetching-manifest")).fgDefault());
         var future = VersionListHelperV2.getLatestReleaseLibs();
         var remoteFileBeanMap = future.exceptionally(throwable -> {
-            System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-to-get-manifest")).fgDefault());
+            Logger.error(ansi().fgBrightRed().a(bundle.getString("fail-to-get-manifest")).fgDefault());
             throwable.printStackTrace();
             return null;
         }).join();
@@ -95,10 +96,10 @@ public final class LibsCommand implements Callable<Integer> {
     }
 
     public @NotNull Integer updateDev(boolean check) {
-        System.out.println(ansi().fgBrightYellow().a(bundle.getString("fetching-manifest")).fgDefault());
+        Logger.info(ansi().fgBrightYellow().a(bundle.getString("fetching-manifest")).fgDefault());
         var future = VersionListHelperV2.getLatestBuildLibs();
         var remoteFileBeanMap = future.exceptionally(throwable -> {
-            System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-to-get-manifest")).fgDefault());
+            Logger.error(ansi().fgBrightRed().a(bundle.getString("fail-to-get-manifest")).fgDefault());
             throwable.printStackTrace();
             return null;
         }).join();
@@ -119,28 +120,28 @@ public final class LibsCommand implements Callable<Integer> {
         try {
             allReleases = VersionListHelperV2.getAllReleases();
         } catch (IOException | InterruptedException e) {
-            System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-to-get-version-list")).fgDefault());
+            Logger.error(ansi().fgBrightRed().a(bundle.getString("fail-to-get-version-list")).fgDefault());
             e.printStackTrace();
             return -1;
         }
-        System.out.println(ansi().fgBrightDefault().a(bundle.getString("available-version")).fgDefault());
+        Logger.info(ansi().fgBrightDefault().a(bundle.getString("available-version")).fgDefault());
         for (int i = 0, len = allReleases.length; i < len; i++) {
             var entry = allReleases[i];
             var time = commonTimeFormat.format(entry.publishedAt());
-            System.out.println((i + 1) + ". " + entry.tagName() + " (" + time + ")");
+            Logger.info((i + 1) + ". " + entry.tagName() + " (" + time + ")");
         }
         // 等待用户选择
         var index = InputUtils.readIndex(bundle.getString("choose-version")) - 1;
         if (index < 0 || index >= allReleases.length) {
-            System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("invalid-index"), allReleases.length)).fgDefault());
+            Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("invalid-index"), allReleases.length)).fgDefault());
             return 1;
         }
         var release = allReleases[index];
-        System.out.println(ansi().fgBrightYellow().a(bundle.getString("fetching-manifest")).fgDefault());
+        Logger.info(ansi().fgBrightYellow().a(bundle.getString("fetching-manifest")).fgDefault());
         var future = VersionListHelperV2.getReleaseLibsFromArtifact(Arrays.stream(release.artifacts())
                 .filter(artifact -> artifact.name().equalsIgnoreCase("libs.tar.gz")).findFirst().orElseThrow());
         var remoteFileBeanMap = future.exceptionally(throwable -> {
-            System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-to-get-manifest")).fgDefault());
+            Logger.error(ansi().fgBrightRed().a(bundle.getString("fail-to-get-manifest")).fgDefault());
             throwable.printStackTrace();
             return null;
         }).join();
@@ -167,19 +168,19 @@ public final class LibsCommand implements Callable<Integer> {
                 var remoteFileBean = remoteFileBeanMapCopy.remove(childFile.getName());
                 try {
                     if (FileUtils.getMD5(childFile).equals(remoteFileBean.md5())) {
-                        System.out.println(ansi().fgBrightGreen().a("+ ").a(childFile.getName()).fgDefault());
+                        Logger.info(ansi().fgBrightGreen().a("+ ").a(childFile.getName()).fgDefault());
                     } else {
-                        System.out.println(ansi().fgBrightYellow().a("~ ").a(childFile.getName()).fgDefault());
+                        Logger.info(ansi().fgBrightYellow().a("~ ").a(childFile.getName()).fgDefault());
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             } else {
-                System.out.println(ansi().fgBrightRed().a("- ").a(childFile.getName()).fgDefault());
+                Logger.info(ansi().fgBrightRed().a("- ").a(childFile.getName()).fgDefault());
             }
         }
         for (var remoteFileBean : remoteFileBeanMapCopy.values()) {
-            System.out.println(ansi().fgBrightRed().a("+ ").a(remoteFileBean.fileName()).fgDefault());
+            Logger.info(ansi().fgBrightRed().a("+ ").a(remoteFileBean.fileName()).fgDefault());
         }
         return 0;
     }
@@ -198,7 +199,7 @@ public final class LibsCommand implements Callable<Integer> {
                     if (!FileUtils.getMD5(childFile).equals(remoteFileBean.md5())) {
                         var result = childFile.delete();
                         if (!result) {
-                            System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-to-update")
+                            Logger.warn(ansi().fgBrightRed().a(bundle.getString("fail-to-update")
                                     .formatted(remoteFileBean.fileName())).fgDefault());
                             continue;
                         }
@@ -206,14 +207,14 @@ public final class LibsCommand implements Callable<Integer> {
                                 childFile, remoteFileBean.fileName(), Main.getTimer());
                     }
                 } catch (IOException e) {
-                    System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-to-update")
+                    Logger.warn(ansi().fgBrightRed().a(bundle.getString("fail-to-update")
                             .formatted(remoteFileBean.fileName())).fgDefault());
                     e.printStackTrace();
                 }
             } else {
                 var result = childFile.delete();
                 if (!result) {
-                    System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-to-update")
+                    Logger.warn(ansi().fgBrightRed().a(bundle.getString("fail-to-update")
                             .formatted(childFile.getName())).fgDefault());
                 }
             }
@@ -224,12 +225,12 @@ public final class LibsCommand implements Callable<Integer> {
                 HttpUtils.downloadWithBar(HttpUtils.getAPIUrl("/download/") + remoteFileBean.downloadID(),
                         file, remoteFileBean.fileName(), Main.getTimer());
             } catch (Exception e) {
-                System.out.println(ansi().fgBrightRed().a(bundle.getString("fail-to-update")
+                Logger.warn(ansi().fgBrightRed().a(bundle.getString("fail-to-update")
                         .formatted(remoteFileBean.fileName())).fgDefault());
                 e.printStackTrace();
             }
         }
-        System.out.println(ansi().fgBrightGreen().a(bundle.getString("successfully-update")).fgDefault());
+        Logger.info(ansi().fgBrightGreen().a(bundle.getString("successfully-update")).fgDefault());
         return 0;
     }
 }

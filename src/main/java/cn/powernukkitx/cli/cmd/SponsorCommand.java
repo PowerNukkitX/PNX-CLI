@@ -1,5 +1,6 @@
 package cn.powernukkitx.cli.cmd;
 
+import cn.powernukkitx.cli.util.Logger;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import picocli.CommandLine.Command;
@@ -38,9 +39,9 @@ public final class SponsorCommand implements Callable<Integer> {
             }
             var names = namesBuilder.toString();
             names = names.substring(0, names.length() - 2);
-            System.out.println(ansi().fgBrightYellow().a(new Formatter().format(bundle.getString("thank"), names)).fgDefault());
+            Logger.info(ansi().fgBrightYellow().a(new Formatter().format(bundle.getString("thank"), names)).fgDefault());
         } catch (IOException | InterruptedException e) {
-            System.out.println(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail"), request.uri().toString())).fgDefault());
+            Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail"), request.uri().toString())).fgDefault());
             if (debug()) {
                 e.printStackTrace();
             }
