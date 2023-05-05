@@ -15,32 +15,32 @@ public final class Logger {
     }
 
     public static void info(String msg) {
-        System.out.println(ansi().fgBrightBlue().a(LocalDateTime.now().format(formatter))
-                .fgDefault().a(" [").fgCyan().a("INFO ").fgDefault().a("] ").fgDefault().a(msg).reset());
+        System.out.println(ansi().fgCyan().a(LocalDateTime.now().format(formatter))
+                .fgDefault().a(" [").fgBlue().a("INFO ").fgDefault().a("] ").fgDefault().a(msg).reset());
     }
 
     public static void info(Ansi msg) {
-        System.out.println(ansi().fgBrightBlue().a(LocalDateTime.now().format(formatter))
-                .fgDefault().a(" [").fgCyan().a("INFO ").fgDefault().a("] ").fgDefault().a(msg).reset());
+        System.out.println(ansi().fgCyan().a(LocalDateTime.now().format(formatter))
+                .fgDefault().a(" [").fgBlue().a("INFO ").fgDefault().a("] ").fgDefault().a(msg).reset());
     }
 
     public static void warn(String msg) {
-        System.out.println(ansi().fgBrightBlue().a(LocalDateTime.now().format(formatter))
+        System.out.println(ansi().fgCyan().a(LocalDateTime.now().format(formatter))
                 .fgDefault().a(" [").fgRed().a("WARN ").fgDefault().a("] ").fgDefault().a(msg).reset());
     }
 
     public static void warn(Ansi msg) {
-        System.out.println(ansi().fgBrightBlue().a(LocalDateTime.now().format(formatter))
+        System.out.println(ansi().fgCyan().a(LocalDateTime.now().format(formatter))
                 .fgDefault().a(" [").fgRed().a("WARN ").fgDefault().a("] ").fgDefault().a(msg).reset());
     }
 
     public static void error(String msg) {
-        System.out.println(ansi().fgBrightBlue().a(LocalDateTime.now().format(formatter))
+        System.out.println(ansi().fgCyan().a(LocalDateTime.now().format(formatter))
                 .fgDefault().a(" [").fgBrightRed().a("ERROR").fgDefault().a("] ").fgDefault().a(msg).reset());
     }
 
     public static void error(Ansi msg) {
-        System.out.println(ansi().fgBrightBlue().a(LocalDateTime.now().format(formatter))
+        System.out.println(ansi().fgCyan().a(LocalDateTime.now().format(formatter))
                 .fgDefault().a(" [").fgBrightRed().a("ERROR").fgDefault().a("] ").fgDefault().a(msg).reset());
     }
 
