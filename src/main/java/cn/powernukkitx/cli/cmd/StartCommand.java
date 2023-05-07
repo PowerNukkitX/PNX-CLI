@@ -130,6 +130,7 @@ public final class StartCommand implements Callable<Integer> {
             return 0;
         }
         cmdBuilder.addProperty("pnx.cli.path", OSUtils.getProgramPath());
+        cmdBuilder.addProperty("pnx.cli.version", CLIConstant.version);
         startCommand = cmdBuilder.build().split(" ");
         if (restart) {
             var result = start();
