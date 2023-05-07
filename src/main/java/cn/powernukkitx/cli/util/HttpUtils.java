@@ -1,6 +1,8 @@
 package cn.powernukkitx.cli.util;
 
+import cn.powernukkitx.cli.Main;
 import cn.powernukkitx.cli.data.bean.RequestIDBean;
+import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,6 +16,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static cn.powernukkitx.cli.util.ConfigUtils.debug;
@@ -92,6 +95,84 @@ public final class HttpUtils {
             }
         }
         return pingList;
+    }
+
+    public static <T> T joinFutureWithPlaceholder(@NotNull CompletableFuture<T> connectionFuture) {
+        return joinFutureWithPlaceholder(Main.getTimer(), connectionFuture);
+    }
+
+    public static <T> T joinFutureWithPlaceholder(@NotNull Timer timer, @NotNull CompletableFuture<T> connectionFuture) {
+        if (connectionFuture.isDone()) {
+            return connectionFuture.join();
+        }
+        if (Ansi.isEnabled()) {
+            var atomicBoolean = new AtomicBoolean(false);
+            var timerTask = new TimerTask() {
+                public int time = 0;
+
+                @Override
+                public void run() {
+                    if (connectionFuture.isDone()) {
+                        this.cancel();
+                        atomicBoolean.set(true);
+                        Logger.clearProgress();
+                        return;
+                    }
+                    time++;
+                    Logger.raw(ansi().fgBrightYellow().a("[").a("/-\\|".charAt(time % 4))
+                            .a("] ").a(".".repeat(time % 7)).reset().toString());
+                    Logger.ProgressPrefixLength.addAndGet(4 + time % 7);
+                }
+            };
+            timer.schedule(timerTask, 10, 250);
+            var tmp = connectionFuture.join();
+            if (!atomicBoolean.get()) {
+                timerTask.cancel();
+                Logger.clearProgress();
+            }
+            return tmp;
+        }
+        return connectionFuture.join();
+    }
+
+    public static <T> @NotNull CompletableFuture<T> warpFutureWithPlaceholder(@NotNull CompletableFuture<T> connectionFuture) {
+        return warpFutureWithPlaceholder(Main.getTimer(), connectionFuture);
+    }
+
+    public static <T> @NotNull CompletableFuture<T> warpFutureWithPlaceholder(@NotNull Timer timer, @NotNull CompletableFuture<T> connectionFuture) {
+        if (connectionFuture.isDone()) {
+            return connectionFuture;
+        }
+        if (Ansi.isEnabled()) {
+            return CompletableFuture.supplyAsync(() -> {
+                var atomicBoolean = new AtomicBoolean(false);
+                var timerTask = new TimerTask() {
+                    public int time = 0;
+
+                    @Override
+                    public void run() {
+                        if (connectionFuture.isDone()) {
+                            this.cancel();
+                            atomicBoolean.set(true);
+                            Logger.clearProgress();
+                            return;
+                        }
+                        time++;
+                        Logger.raw(ansi().fgBrightYellow().a("[").a("/-\\|".charAt(time % 4))
+                                .a("] ").a(".".repeat(time % 7)).reset().toString());
+                        Logger.ProgressPrefixLength.addAndGet(4 + time % 7);
+                    }
+                };
+                timer.schedule(timerTask, 10, 250);
+                var tmp = connectionFuture.join();
+                if (!atomicBoolean.get()) {
+                    timerTask.cancel();
+                    Logger.clearProgress();
+                }
+                return tmp;
+            });
+        }
+        return connectionFuture;
     }
 
     public static @NotNull CompletableFuture<String> getDelayedResponse(@NotNull Timer timer, RequestIDBean requestIDBean) {

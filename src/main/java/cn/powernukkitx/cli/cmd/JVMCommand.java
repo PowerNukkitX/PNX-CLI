@@ -190,12 +190,13 @@ public final class JVMCommand implements Callable<Integer> {
         var client = HttpClient.newHttpClient();
         var request = HttpRequest.newBuilder(URI.create("https://assets.powernukkitx.cn/jvms.json")).GET().build();
         try {
-            var result = JsonParser.parseString(client.send(request, HttpResponse.BodyHandlers.ofString()).body());
+            var result = JsonParser.parseString(HttpUtils.joinFutureWithPlaceholder(
+                    client.sendAsync(request, HttpResponse.BodyHandlers.ofString())).body());
             if (result.isJsonArray()) {
                 return result.getAsJsonArray();
             }
             return new JsonArray();
-        } catch (IOException | InterruptedException e) {
+        } catch (Exception e) {
             return new JsonArray();
         }
     }

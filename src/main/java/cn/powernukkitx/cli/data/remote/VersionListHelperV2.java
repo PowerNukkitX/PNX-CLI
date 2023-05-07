@@ -25,14 +25,16 @@ public final class VersionListHelperV2 {
     public static @NotNull ReleaseBean getLatestRelease() throws IOException, InterruptedException {
         var client = HttpUtils.getClient();
         var request = HttpRequest.newBuilder(URI.create(getAPIUrl() + "/git/latest-release/PowerNukkitX/PowerNukkitX")).GET().build();
-        var result = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)).body();
+        var future = client.sendAsync(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        var result = HttpUtils.joinFutureWithPlaceholder(future).body();
         return ReleaseBean.from(JsonParser.parseString(result).getAsJsonObject());
     }
 
     public static @NotNull ReleaseBean @NotNull [] getAllReleases() throws IOException, InterruptedException {
         var client = HttpUtils.getClient();
         var request = HttpRequest.newBuilder(URI.create(getAPIUrl() + "/git/all-releases/PowerNukkitX/PowerNukkitX")).GET().build();
-        var result = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)).body();
+        var future = client.sendAsync(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        var result = HttpUtils.joinFutureWithPlaceholder(future).body();
         var jsonArray = JsonParser.parseString(result).getAsJsonArray();
         var releases = new ReleaseBean[jsonArray.size()];
         for (int i = 0; i < releases.length; i++) {
@@ -44,14 +46,16 @@ public final class VersionListHelperV2 {
     public static @NotNull BuildBean getLatestBuild() throws IOException, InterruptedException {
         var client = HttpUtils.getClient();
         var request = HttpRequest.newBuilder(URI.create(getAPIUrl() + "/git/latest-build/PowerNukkitX/PowerNukkitX")).GET().build();
-        var result = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)).body();
+        var future = client.sendAsync(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        var result = HttpUtils.joinFutureWithPlaceholder(future).body();
         return BuildBean.from(JsonParser.parseString(result).getAsJsonObject());
     }
 
     public static @NotNull CompletableFuture<Map<String, RemoteFileBean>> getLatestReleaseLibs() {
         var client = HttpUtils.getClient();
         var request = HttpRequest.newBuilder(URI.create(getAPIUrl() + "/git/latest-release/PowerNukkitX/PowerNukkitX")).GET().build();
-        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8))
+        return HttpUtils.warpFutureWithPlaceholder(
+                client.sendAsync(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)))
                 .thenApply(HttpResponse::body)
                 .thenApply(JsonParser::parseString)
                 .thenApply(jsonElement -> {
@@ -69,7 +73,8 @@ public final class VersionListHelperV2 {
     public static @NotNull CompletableFuture<Map<String, RemoteFileBean>> getLatestBuildLibs() {
         var client = HttpUtils.getClient();
         var request = HttpRequest.newBuilder(URI.create(getAPIUrl() + "/git/latest-build/PowerNukkitX/PowerNukkitX")).GET().build();
-        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8))
+        return HttpUtils.warpFutureWithPlaceholder(
+                client.sendAsync(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)))
                 .thenApply(HttpResponse::body)
                 .thenApply(JsonParser::parseString)
                 .thenApply(jsonElement -> BuildBean.from(jsonElement.getAsJsonObject()).libs())
@@ -82,11 +87,12 @@ public final class VersionListHelperV2 {
                 .uri(URI.create(getAPIUrl() + "/download/decompress/" + artifactBean.downloadId()))
                 .GET()
                 .build();
-        return client.sendAsync(decompressRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8))
+        return HttpUtils.warpFutureWithPlaceholder(
+                client.sendAsync(decompressRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)))
                 .thenApply(HttpResponse::body)
                 .thenApply(JsonParser::parseString)
                 .thenCompose(jsonElement ->
-                        HttpUtils.getDelayedResponse(Main.getTimer(), RequestIDBean.from(jsonElement.getAsJsonObject())))
+                        HttpUtils.warpFutureWithPlaceholder(HttpUtils.getDelayedResponse(Main.getTimer(), RequestIDBean.from(jsonElement.getAsJsonObject()))))
                 .thenApply(JsonParser::parseString)
                 .thenApply(jsonElement -> jsonElement.getAsJsonObject().entrySet())
                 .thenApply(entries -> {

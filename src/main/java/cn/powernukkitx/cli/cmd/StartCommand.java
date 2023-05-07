@@ -126,7 +126,7 @@ public final class StartCommand implements Callable<Integer> {
             cmdBuilder.addXxOption(each);
         }
         if (generateOnly) {
-            Logger.raw(cmdBuilder.build());
+            Logger.raw(cmdBuilder.build() + "\n");
             return 0;
         }
         cmdBuilder.addProperty("pnx.cli.path", OSUtils.getProgramPath());

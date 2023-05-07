@@ -32,7 +32,7 @@ public final class PingCommand implements Callable<Integer> {
                 resultList.add(result);
             }
         }));
-        CompletableFuture.allOf(pingMap.values().toArray(CompletableFuture[]::new)).join();
+        HttpUtils.joinFutureWithPlaceholder(CompletableFuture.allOf(pingMap.values().toArray(CompletableFuture[]::new)));
         if (resultList.isEmpty()) {
             Logger.error(ansi().fgBrightRed().a(bundle.getString("no-available")));
         } else {
