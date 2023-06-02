@@ -135,7 +135,7 @@ jobs:
       - name: 本机静态编译
         run: |
           cd target
-          native-image -jar PNX-CLI-${{ steps.get-version.outputs.version }}.jar -H:Name=pnx --libc=musl --static
+          native-image -jar PNX-CLI-${{ steps.get-version.outputs.version }}.jar -H:Name=pnx --libc=glibc --static
 
       - name: 上传jar包
         uses: actions/upload-artifact@v2
@@ -168,7 +168,7 @@ jobs:
       - name: 本机静态编译
         run: |
           cd target
-          native-image -jar PNX-CLI-${{ steps.get-version.outputs.version }}.jar -H:Name=pnx --libc=musl --static
+          native-image -jar PNX-CLI-${{ steps.get-version.outputs.version }}.jar -H:Name=pnx --libc=glibc --static
 
       - name: 上传可执行文件
         uses: actions/upload-artifact@v2
