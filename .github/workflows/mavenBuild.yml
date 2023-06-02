@@ -100,7 +100,7 @@ jobs:
         with:
           path: |
             ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}-PNX-CLI-WINDOWS-X86
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}-PNX-CLI-LINUX-X86
           restore-keys: |
             ${{ runner.os }}-PNX-CLI-LINUX-X86
 
