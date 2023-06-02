@@ -124,6 +124,9 @@ jobs:
           version: latest
           platform: x64
 
+      - name: 配置MUSL环境
+        uses: Lesmiscore/musl-cross-compilers@v0.5
+
       - name: 本机静态编译
         run: |
           cd target
