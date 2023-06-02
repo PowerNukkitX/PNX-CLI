@@ -86,7 +86,7 @@ jobs:
 
   linux-x86-build:
     name: Linux x86 构建
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     needs: check-files
     if: contains(needs.check-files.outputs.changed-files, 'src/') || (github.event_name == 'push' && contains(github.event.commits[0].message, '+b'))
 
@@ -124,18 +124,10 @@ jobs:
           version: latest
           platform: x64
 
-      - name: 配置MUSL环境
-        uses: Lesmiscore/musl-cross-compilers@v0.5
-        with:
-          target: x86_64-linux-musl
-
-      - name: 安装zlib
-        run: sudo apt-get install zlib1g-dev
-
       - name: 本机静态编译
         run: |
           cd target
-          native-image -jar PNX-CLI-${{ steps.get-version.outputs.version }}.jar -H:Name=pnx --libc=glibc --static
+          native-image -jar PNX-CLI-${{ steps.get-version.outputs.version }}.jar -H:Name=pnx
 
       - name: 上传jar包
         uses: actions/upload-artifact@v2
@@ -168,7 +160,7 @@ jobs:
       - name: 本机静态编译
         run: |
           cd target
-          native-image -jar PNX-CLI-${{ steps.get-version.outputs.version }}.jar -H:Name=pnx --libc=glibc --static
+          native-image -jar PNX-CLI-${{ steps.get-version.outputs.version }}.jar -H:Name=pnx
 
       - name: 上传可执行文件
         uses: actions/upload-artifact@v2
