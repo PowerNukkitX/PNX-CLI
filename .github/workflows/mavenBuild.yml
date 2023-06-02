@@ -126,6 +126,8 @@ jobs:
 
       - name: 配置MUSL环境
         uses: Lesmiscore/musl-cross-compilers@v0.5
+        with:
+          target: x86_64-linux-musl
 
       - name: 本机静态编译
         run: |
