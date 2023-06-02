@@ -9,6 +9,7 @@ import cn.powernukkitx.cli.share.CLIConstant;
 import cn.powernukkitx.cli.util.HttpUtils;
 import cn.powernukkitx.cli.util.InputUtils;
 import cn.powernukkitx.cli.util.Logger;
+import net.lingala.zip4j.ZipFile;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -104,7 +105,16 @@ public final class ServerCommand implements Callable<Integer> {
             var latestBuild = VersionListHelperV2.getLatestBuild();
             var coreArtifact = latestBuild.core();
             displayName = "PowerNukkitX-Core dev (" + commonTimeFormat.format(coreArtifact.createAt()) + ")";
-            return downloadCore(displayName, "PowerNukkitX-dev.jar", coreArtifact);
+            var returnCode = downloadCore(displayName, "PowerNukkitX-dev.zip.tmp", coreArtifact);
+            var tmpFile = new File(CLIConstant.userDir, "PowerNukkitX-dev.zip.tmp");
+            try (var zipFile = new ZipFile(tmpFile)) {
+                zipFile.extractFile("powernukkitx.jar", CLIConstant.userDir.getAbsolutePath(), "PowerNukkitX-dev.jar");
+            }
+            var result = tmpFile.delete();
+            if (!result) {
+                Logger.warn(ansi().fgBrightYellow().a(bundle.getString("fail-to-delete-temp-file")).fgDefault());
+            }
+            return returnCode;
         } catch (IOException | InterruptedException e) {
             Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail-to-install"), displayName)).fgDefault());
             e.printStackTrace();
