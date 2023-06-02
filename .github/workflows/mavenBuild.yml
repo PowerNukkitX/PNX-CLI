@@ -129,6 +129,9 @@ jobs:
         with:
           target: x86_64-linux-musl
 
+      - name: 安装zlib
+        run: sudo apt-get install zlib1g-dev
+
       - name: 本机静态编译
         run: |
           cd target
