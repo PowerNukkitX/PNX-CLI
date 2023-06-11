@@ -27,8 +27,12 @@ public final class Main {
                 }
             }
         }
+        var realArgs = args;
+        if (ConfigUtils.forceArguments() != null) {
+            realArgs = ConfigUtils.forceArguments();
+        }
         try {
-            new CommandLine(new Preprocessor()).parseArgs(args);
+            new CommandLine(new Preprocessor()).parseArgs(realArgs);
         } catch (Exception ignore) {
 
         }

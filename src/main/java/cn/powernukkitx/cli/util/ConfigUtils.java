@@ -2,6 +2,7 @@ package cn.powernukkitx.cli.util;
 
 import cn.powernukkitx.cli.share.CLIConstant;
 import com.sun.management.OperatingSystemMXBean;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
@@ -155,5 +156,13 @@ public final class ConfigUtils {
 
     public static @Nullable String apiEndpoint() {
         return configMap.get("api-endpoint");
+    }
+
+    public static @NotNull String @Nullable [] forceArguments() {
+        var arguments = configMap.get("force-arguments");
+        if (arguments == null || arguments.isBlank()) {
+            return null;
+        }
+        return arguments.trim().split(" ");
     }
 }
