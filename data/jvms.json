@@ -28,24 +28,24 @@
     "name": "GraalVM",
     "download": {
       "windows-x86": {
-        "url": "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.2.0/graalvm-ce-java17-windows-amd64-22.2.0.zip",
-        "size": "244MB"
+        "url": "https://download.oracle.com/graalvm/20/latest/graalvm-jdk-20_windows-x64_bin.zip",
+        "size": "312MB"
       },
       "linux-x86": {
-        "url": "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.2.0/graalvm-ce-java17-linux-amd64-22.2.0.tar.gz",
-        "size": "251MB"
+        "url": "https://download.oracle.com/graalvm/20/latest/graalvm-jdk-20_linux-x64_bin.tar.gz",
+        "size": "329MB"
       },
       "linux-aarch": {
-        "url": "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.2.0/graalvm-ce-java17-linux-aarch64-22.2.0.tar.gz",
-        "size": "249MB"
+        "url": "https://download.oracle.com/graalvm/20/latest/graalvm-jdk-20_linux-aarch64_bin.tar.gz",
+        "size": "310MB"
       },
       "macos-x86": {
-        "url": "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.2.0/graalvm-ce-java17-darwin-amd64-22.2.0.tar.gz",
-        "size": "248MB"
+        "url": "https://download.oracle.com/graalvm/20/latest/graalvm-jdk-20_macos-x64_bin.tar.gz",
+        "size": "312MB"
       },
       "macos-aarch": {
-        "url": "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.2.0/graalvm-ce-java17-darwin-aarch64-22.2.0.tar.gz",
-        "size": "245MB"
+        "url": "https://download.oracle.com/graalvm/20/latest/graalvm-jdk-20_macos-aarch64_bin.tar.gz",
+        "size": "363MB"
       }
     }
   },
