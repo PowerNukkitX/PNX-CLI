@@ -102,8 +102,12 @@ public final class StartCommand implements Callable<Integer> {
         cmdBuilder.addXxOption("UseG1GC", true);
         cmdBuilder.addXxOption("UseStringDeduplication", true);
         cmdBuilder.addXxOption("EnableJVMCI", true);
-        if (isLowVersionGraalVM(java.getInfo()) != GraalStatus.NotFound) {
+        var graalStatus = getGraalStatus(java.getInfo());
+        if (graalStatus != GraalStatus.NotFound) {
             cmdBuilder.addXxOption("UseJVMCICompiler", true);
+            if (graalStatus != GraalStatus.LowVersion && graalStatus != GraalStatus.Standard) {
+                cmdBuilder.addXxOption("UseJVMCINativeLibrary", true);
+            }
         } else {
             var graalJIT = new GraalJITLocator().locate();
             if (graalJIT.size() > 1) {
@@ -149,13 +153,17 @@ public final class StartCommand implements Callable<Integer> {
     enum GraalStatus {
         NotFound,
         Standard,
+        Oracle,
         LowVersion
     }
 
-    private GraalStatus isLowVersionGraalVM(JavaLocator.JavaInfo javaInfo) {
+    private GraalStatus getGraalStatus(JavaLocator.JavaInfo javaInfo) {
         var vendor = javaInfo.getVendor().toLowerCase();
         if (!vendor.contains("graal")) {
             return GraalStatus.NotFound;
+        }
+        if (vendor.contains("oracle graalvm")) {
+            return GraalStatus.Oracle;
         }
         var index = vendor.indexOf("2", vendor.indexOf("graalvm"));
         if (index == -1) {
@@ -177,9 +185,11 @@ public final class StartCommand implements Callable<Integer> {
                 builder.inheritIO();
             }
             var process = builder.start();
+            Main.pnxRunning = true;
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 if (process.isAlive()) {
                     process.destroy();
+                    Main.pnxRunning = false;
                 }
             }));
             if (useStdinFile) {
@@ -211,9 +221,12 @@ public final class StartCommand implements Callable<Integer> {
                     }, 1000, 1000);
                 }
             }
-            return process.waitFor();
+            int exitValue = process.waitFor();
+            Main.pnxRunning = false;
+            return exitValue;
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
+            Main.pnxRunning = false;
             return 1;
         }
     }

@@ -29,11 +29,16 @@ import static org.fusesource.jansi.Ansi.ansi;
 })
 public final class App implements Callable<Integer> {
 
+    @SuppressWarnings("unused")
     @Option(names = {"-l", "--lang", "--language"}, paramLabel = "<lang>", descriptionKey = "lang")
     private String ignoredLocale;
 
     @Option(names = "--config-path", paramLabel = "<config-path>", descriptionKey = "config-path")
     public String configFilePath;
+
+    @SuppressWarnings("unused")
+    @Option(names = {"-u", "--update"}, descriptionKey = "update", negatable = true, defaultValue = "true")
+    public boolean ignoredCheckUpdate;
 
     @Parameters(index = "0..*", hidden = true)
     public String[] args;

@@ -1,5 +1,6 @@
 package cn.powernukkitx.cli.util;
 
+import cn.powernukkitx.cli.Main;
 import org.fusesource.jansi.Ansi;
 
 import java.time.LocalDateTime;
@@ -28,44 +29,57 @@ public final class Logger {
         }
     }
 
+    public static void ensureRunningFormatBefore() {
+        if (Main.pnxRunning) {
+            System.out.print(ansi().eraseLine().cursorLeft(2));
+        }
+    }
+
     public static void info(String msg) {
         clearProgress();
+        ensureRunningFormatBefore();
         System.out.println(ansi().fgCyan().a(LocalDateTime.now().format(formatter))
                 .fgDefault().a(" [").fgBlue().a("INFO ").fgDefault().a("] ").fgDefault().a(msg).reset());
     }
 
     public static void info(Ansi msg) {
         clearProgress();
+        ensureRunningFormatBefore();
         System.out.println(ansi().fgCyan().a(LocalDateTime.now().format(formatter))
                 .fgDefault().a(" [").fgBlue().a("INFO ").fgDefault().a("] ").fgDefault().a(msg).reset());
     }
 
     public static void warn(String msg) {
         clearProgress();
+        ensureRunningFormatBefore();
         System.out.println(ansi().fgCyan().a(LocalDateTime.now().format(formatter))
                 .fgDefault().a(" [").fgRed().a("WARN ").fgDefault().a("] ").fgDefault().a(msg).reset());
     }
 
     public static void warn(Ansi msg) {
         clearProgress();
+        ensureRunningFormatBefore();
         System.out.println(ansi().fgCyan().a(LocalDateTime.now().format(formatter))
                 .fgDefault().a(" [").fgRed().a("WARN ").fgDefault().a("] ").fgDefault().a(msg).reset());
     }
 
     public static void error(String msg) {
         clearProgress();
+        ensureRunningFormatBefore();
         System.out.println(ansi().fgCyan().a(LocalDateTime.now().format(formatter))
                 .fgDefault().a(" [").fgBrightRed().a("ERROR").fgDefault().a("] ").fgDefault().a(msg).reset());
     }
 
     public static void error(Ansi msg) {
         clearProgress();
+        ensureRunningFormatBefore();
         System.out.println(ansi().fgCyan().a(LocalDateTime.now().format(formatter))
                 .fgDefault().a(" [").fgBrightRed().a("ERROR").fgDefault().a("] ").fgDefault().a(msg).reset());
     }
 
     public static void raw(String msg) {
         clearProgress();
+        ensureRunningFormatBefore();
         System.out.print(msg);
     }
 }

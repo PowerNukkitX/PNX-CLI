@@ -35,8 +35,19 @@ public class JavaLocator extends Locator<JavaLocator.JavaInfo> {
         final List<File> binDirs = new ArrayList<>();
         { // 探测当前运行环境
             var javaHome = System.getProperty("java.home");
-            if (javaHome != null)
-                binDirs.add(new File(javaHome));
+            if (javaHome != null) {
+                var binDir = new File(javaHome);
+                if (binDir.exists() && binDir.isDirectory()) {
+                    if (isJavaDir(binDir)) {
+                        binDirs.add(binDir);
+                    } else {
+                        final File innerBinDir = new File(binDir, "bin");
+                        if (isJavaDir(innerBinDir)) {
+                            binDirs.add(innerBinDir);
+                        }
+                    }
+                }
+            }
         }
         { // 当前文件夹下缓存探测
             if (localJavaDir.exists()) {
@@ -90,7 +101,7 @@ public class JavaLocator extends Locator<JavaLocator.JavaInfo> {
                 if (each == null || "".equals(each)) {
                     continue;
                 }
-                final File binDir = new File(CLIConstant.userDir, each);
+                final File binDir = new File(each);
                 if (binDir.exists() && binDir.isDirectory()) {
                     if (isJavaDir(binDir)) {
                         binDirs.add(binDir);
