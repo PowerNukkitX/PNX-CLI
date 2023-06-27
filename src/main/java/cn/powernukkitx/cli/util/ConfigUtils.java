@@ -120,7 +120,7 @@ public final class ConfigUtils {
             return configMap.get("vmMemory");
         } else {
             var bean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-            var mem = (bean.getTotalMemorySize() / 1024 / 1024) + "m";
+            var mem = ((bean.getTotalMemorySize() / 1024 / 1024) * 0.9) + "m";
             configMap.put("vmMemory", mem);
             hasChanged.set(true);
             return mem;
