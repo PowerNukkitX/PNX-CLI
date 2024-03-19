@@ -141,37 +141,37 @@ jobs:
           name: PNX-CLI-Linux-x86
           path: target/pnx
 
-  linux-arm-build:
-    name: Linux arm 构建
-    runs-on: self-hosted
-    needs: check-files
-    if: contains(needs.check-files.outputs.changed-files, 'src/') || (github.event_name == 'push' && contains(github.event.commits[0].message, '+b'))
-
-    steps:
-      - name: 检出仓库内容
-        uses: actions/checkout@v2
-
-      - name: Maven构建
-        run: mvn -B package --file pom.xml
-
-      - id: get-version
-        uses: jactions/maven-version@v1.2.0
-
-      - name: 本机静态编译
-        run: |
-          cd target
-          native-image -jar PNX-CLI-${{ steps.get-version.outputs.version }}.jar -H:Name=pnx
-
-      - name: 上传可执行文件
-        uses: actions/upload-artifact@v2
-        with:
-          name: PNX-CLI-Linux-arm
-          path: target/pnx
+#  linux-arm-build:
+#    name: Linux arm 构建
+#    runs-on: self-hosted
+#    needs: check-files
+#    if: contains(needs.check-files.outputs.changed-files, 'src/') || (github.event_name == 'push' && contains(github.event.commits[0].message, '+b'))
+#
+#    steps:
+#      - name: 检出仓库内容
+#        uses: actions/checkout@v2
+#
+#      - name: Maven构建
+#        run: mvn -B package --file pom.xml
+#
+#      - id: get-version
+#        uses: jactions/maven-version@v1.2.0
+#
+#      - name: 本机静态编译
+#        run: |
+#          cd target
+#          native-image -jar PNX-CLI-${{ steps.get-version.outputs.version }}.jar -H:Name=pnx
+#
+#      - name: 上传可执行文件
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: PNX-CLI-Linux-arm
+#          path: target/pnx
 
   release:
     name: 发布发行版
     runs-on: ubuntu-latest
-    needs: [ windows-x86-build, linux-x86-build, linux-arm-build ]
+    needs: [ windows-x86-build, linux-x86-build ]
     if: startsWith(github.ref, 'refs/heads/master')
 
     steps:
@@ -191,11 +191,6 @@ jobs:
         with:
           name: PNX-CLI-Linux-x86
           path: target/linux-x86
-      - name: 下载Linux arm可执行文件
-        uses: actions/download-artifact@v2
-        with:
-          name: PNX-CLI-Linux-arm
-          path: target/linux-arm
       - name: 下载jar包
         uses: actions/download-artifact@v2
         with:
@@ -205,14 +200,12 @@ jobs:
         run: |
           zip -r PNX-CLI-Windows-x86.zip target/windows-x86/pnx.exe 
           zip -r PNX-CLI-Linux-x86.zip target/linux-x86/pnx
-          zip -r PNX-CLI-Linux-arm.zip target/linux-arm/pnx
       - name: 创建发行版
         uses: softprops/action-gh-release@v1
         with:
           files: |
             PNX-CLI-Windows-x86.zip
             PNX-CLI-Linux-x86.zip
-            PNX-CLI-Linux-arm.zip
             target/jar/PNX-CLI-${{ steps.get-version.outputs.version }}.jar
           draft: false
           prerelease: true
