@@ -7,7 +7,10 @@ import cn.powernukkitx.cli.data.locator.GraalModuleLocator;
 import cn.powernukkitx.cli.data.locator.JarLocator;
 import cn.powernukkitx.cli.data.locator.JavaLocator;
 import cn.powernukkitx.cli.share.CLIConstant;
-import cn.powernukkitx.cli.util.*;
+import cn.powernukkitx.cli.util.ConfigUtils;
+import cn.powernukkitx.cli.util.InputUtils;
+import cn.powernukkitx.cli.util.Logger;
+import cn.powernukkitx.cli.util.OSUtils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -48,28 +51,30 @@ public final class StartCommand implements Callable<Integer> {
             cmdBuilder.setOtherArgs(args);
         }
         var javaList = new JavaLocator("17", true).locate();
-        if (javaList.size() == 0) {
+        if (javaList.isEmpty()) {
             Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-java17"), OSUtils.getProgramName())).fgDefault());
             return 1;
         }
         var java = javaList.get(0);
         cmdBuilder.setJvmExecutable(java.getFile());
         Logger.info(ansi().fgBrightYellow().a(new Formatter().format(bundle.getString("using-jvm"), java.getInfo().getVendor())).fgDefault());
-        var pnxList = new JarLocator(CLIConstant.userDir, "cn.nukkit.api.PowerNukkitXOnly").locate();
-
+        var pnxList = new JarLocator(CLIConstant.userDir, "cn.nukkit.PlayerHandle").locate();
         //auto install
-        if (pnxList.size() == 0) {
+        if (pnxList.isEmpty()) {
             try {
                 Logger.warn(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-pnx"), OSUtils.getProgramName())).fgDefault());
-                var download = new ServerCommand();
-                download.update = true;
+                var download = new UpdateCommand();
+                download.core = true;
                 download.latest = true;
                 download.call();
             } catch (ParseException e) {
                 e.printStackTrace();
                 return 1;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return 1;
             }
-            pnxList = new JarLocator(CLIConstant.userDir, "cn.nukkit.api.PowerNukkitXOnly").locate();
+            pnxList = new JarLocator(CLIConstant.userDir, "cn.nukkit.PlayerHandle").locate();
         }
         var libDir = new File(CLIConstant.userDir, "libs");
         if (!libDir.exists()) {
@@ -78,15 +83,20 @@ public final class StartCommand implements Callable<Integer> {
         }
         var oldLibFiles = new LinkedList<>(Arrays.asList(Objects.requireNonNull(libDir.listFiles((dir, name) -> name.endsWith(".jar")))));
         if (oldLibFiles.size() < 32) {
-            Logger.warn(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-libs"), OSUtils.getProgramName())).fgDefault());
-            var libs = new LibsCommand();
-            libs.options = new LibsCommand.AllOptions();
-            libs.options.update = true;
-            libs.versionOptions = new LibsCommand.VersionOptions();
-            libs.versionOptions.latest = true;
-            libs.call();
+            try {
+                Logger.warn(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-libs"), OSUtils.getProgramName())).fgDefault());
+                var download = new UpdateCommand();
+                download.libs = true;
+                download.latest = true;
+                download.call();
+            } catch (ParseException e) {
+                e.printStackTrace();
+                return 1;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return 1;
+            }
         }
-
         var pnx = pnxList.get(0);
         cmdBuilder.addClassPath(pnx.getFile().getAbsolutePath());
         Logger.info(ansi().fgBrightYellow().a(new Formatter().format(bundle.getString("using-pnx"), Ok(pnx.getInfo().getGitInfo().orElse(null), info -> info.getMainVersion() + " - " + info.getCommitID(), "unknown"))).fgDefault());

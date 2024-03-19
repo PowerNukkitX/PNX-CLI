@@ -217,10 +217,13 @@ public final class HttpUtils {
     }
 
     public static boolean downloadWithBar(String downloadURL, File target, String displayName, long estimatedSize, Timer timer) {
+        return downloadWithBar(HttpRequest.newBuilder(URI.create(downloadURL)).GET().build(), target, displayName, estimatedSize, timer);
+    }
+
+    public static boolean downloadWithBar(HttpRequest request, File target, String displayName, long estimatedSize, Timer timer) {
         try {
             var client = getClient();
-            var request = HttpRequest.newBuilder(URI.create(downloadURL)).GET().build();
-            Logger.info(ansi().fgBrightDefault().a(new Formatter().format(bundle.getString("connecting"), downloadURL)).fgDefault().toString());
+            Logger.info(ansi().fgBrightDefault().a(new Formatter().format(bundle.getString("connecting"), request.uri().toURL())).fgDefault().toString());
             Logger.raw("");
             var contentLength = new AtomicLong();
             var atomicLong = new AtomicLong(0);
@@ -255,6 +258,10 @@ public final class HttpUtils {
             }
             try (var fos = new FileOutputStream(target)) {
                 var response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+                if (response.statusCode() != 200) {
+                    Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("fail"), displayName)).fgDefault());
+                    return false;
+                }
                 try (var fis = response.body()) {
                     contentLength.set(response.headers().firstValueAsLong("Content-Length").orElse(estimatedSize));
                     fis.transferTo(fos);

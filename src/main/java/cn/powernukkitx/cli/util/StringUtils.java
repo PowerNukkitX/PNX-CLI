@@ -5,9 +5,11 @@ import com.google.gson.GsonBuilder;
 
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 
 public final class StringUtils {
     public static final SimpleDateFormat commonTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static final DateTimeFormatter commonLocalTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public static String beforeLast(String str, String splitter) {

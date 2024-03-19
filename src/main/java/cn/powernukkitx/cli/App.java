@@ -1,6 +1,8 @@
 package cn.powernukkitx.cli;
 
-import cn.powernukkitx.cli.cmd.*;
+import cn.powernukkitx.cli.cmd.StartCommand;
+import cn.powernukkitx.cli.cmd.SysInstallCommand;
+import cn.powernukkitx.cli.cmd.UpdateCommand;
 import cn.powernukkitx.cli.share.CLIConstant;
 import cn.powernukkitx.cli.util.*;
 import picocli.CommandLine;
@@ -17,15 +19,9 @@ import static org.fusesource.jansi.Ansi.ansi;
 
 @Command(name = "pnx", aliases = {"pnx", "PNX", "cli"}, version = CLIConstant.version, mixinStandardHelpOptions = true,
         resourceBundle = "cn.powernukkitx.cli.App", subcommands = {
-        AboutCommand.class,
         SysInstallCommand.class,
-        SponsorCommand.class,
-        JVMCommand.class,
-        ServerCommand.class,
-        LibsCommand.class,
         StartCommand.class,
-        ComponentsCommand.class,
-        PingCommand.class
+        UpdateCommand.class
 })
 public final class App implements Callable<Integer> {
 
