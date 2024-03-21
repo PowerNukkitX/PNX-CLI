@@ -7,10 +7,7 @@ import cn.powernukkitx.cli.data.locator.GraalModuleLocator;
 import cn.powernukkitx.cli.data.locator.JarLocator;
 import cn.powernukkitx.cli.data.locator.JavaLocator;
 import cn.powernukkitx.cli.share.CLIConstant;
-import cn.powernukkitx.cli.util.ConfigUtils;
-import cn.powernukkitx.cli.util.InputUtils;
-import cn.powernukkitx.cli.util.Logger;
-import cn.powernukkitx.cli.util.OSUtils;
+import cn.powernukkitx.cli.util.*;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -19,7 +16,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.Callable;
 
@@ -61,20 +57,21 @@ public final class StartCommand implements Callable<Integer> {
         var pnxList = new JarLocator(CLIConstant.userDir, "cn.nukkit.PlayerHandle").locate();
         //auto install
         if (pnxList.isEmpty()) {
-            try {
+            File file = new File(CLIConstant.userDir, "PowerNukkitX-Core.zip");
+
+            if (file.exists()) {
+                new JarLocator(CLIConstant.userDir, "cn.nukkit.PlayerHandle").locate().forEach(each -> each.getFile().delete());
+                try {
+                    CompressUtils.uncompressZipFile(file, new File(""));
+                    Files.deleteIfExists(file.toPath());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                pnxList = new JarLocator(CLIConstant.userDir, "cn.nukkit.PlayerHandle").locate();
+            } else {
                 Logger.warn(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-pnx"), OSUtils.getProgramName())).fgDefault());
-                var download = new UpdateCommand();
-                download.core = true;
-                download.latest = true;
-                download.call();
-            } catch (ParseException e) {
-                e.printStackTrace();
-                return 1;
-            } catch (Exception e) {
-                e.printStackTrace();
                 return 1;
             }
-            pnxList = new JarLocator(CLIConstant.userDir, "cn.nukkit.PlayerHandle").locate();
         }
         var libDir = new File(CLIConstant.userDir, "libs");
         if (!libDir.exists()) {
@@ -83,17 +80,18 @@ public final class StartCommand implements Callable<Integer> {
         }
         var oldLibFiles = new LinkedList<>(Arrays.asList(Objects.requireNonNull(libDir.listFiles((dir, name) -> name.endsWith(".jar")))));
         if (oldLibFiles.size() < 32) {
-            try {
+            File file = new File(CLIConstant.userDir, "PowerNukkitX-Libs.zip");
+            if (file.exists()) {
+                File libs = new File(CLIConstant.userDir, "libs");
+                FileUtils.deleteDir(libs);
+                try {
+                    CompressUtils.uncompressZipFile(file, libs);
+                    Files.deleteIfExists(file.toPath());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }else {
                 Logger.warn(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-libs"), OSUtils.getProgramName())).fgDefault());
-                var download = new UpdateCommand();
-                download.libs = true;
-                download.latest = true;
-                download.call();
-            } catch (ParseException e) {
-                e.printStackTrace();
-                return 1;
-            } catch (Exception e) {
-                e.printStackTrace();
                 return 1;
             }
         }
