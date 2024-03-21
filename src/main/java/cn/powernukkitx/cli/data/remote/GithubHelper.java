@@ -23,7 +23,7 @@ import static cn.powernukkitx.cli.util.HttpUtils.getClient;
 import static org.fusesource.jansi.Ansi.ansi;
 
 public final class GithubHelper {
-    public static String github_token_readonly = "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";
+    public static String github_token_readonly = "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";
 
     public enum ArtifactType {
         CORE("PowerNukkitX-Core"),
