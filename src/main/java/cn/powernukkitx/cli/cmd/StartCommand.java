@@ -46,9 +46,9 @@ public final class StartCommand implements Callable<Integer> {
         if (args != null && args.length > 0) {
             cmdBuilder.setOtherArgs(args);
         }
-        var javaList = new JavaLocator("17", true).locate();
+        var javaList = new JavaLocator("21", true).locate();
         if (javaList.isEmpty()) {
-            Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-java17"), OSUtils.getProgramName())).fgDefault());
+            Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-java21"), OSUtils.getProgramName())).fgDefault());
             return 1;
         }
         var java = javaList.get(0);
