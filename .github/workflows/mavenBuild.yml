@@ -48,12 +48,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-PNX-CLI-WINDOWS-X86
 
-      - name: 安装GraalVM
-        uses: graalvm/setup-graalvm@v1
+      - uses: graalvm/setup-graalvm@v1
         with:
-          version: '22.3.0'
-          java-version: '17'
-          components: 'native-image'
+          java-version: '21'
+          distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Maven构建
@@ -104,12 +102,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-PNX-CLI-LINUX-X86
 
-      - name: 安装GraalVM
-        uses: graalvm/setup-graalvm@v1
+      - uses: graalvm/setup-graalvm@v1
         with:
-          version: '22.3.0'
-          java-version: '17'
-          components: 'native-image'
+          java-version: '21'
+          distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Maven构建
