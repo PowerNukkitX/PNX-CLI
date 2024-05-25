@@ -2,7 +2,6 @@ package cn.powernukkitx.cli;
 
 import cn.powernukkitx.cli.cmd.StartCommand;
 import cn.powernukkitx.cli.cmd.SysInstallCommand;
-import cn.powernukkitx.cli.share.CLIConstant;
 import cn.powernukkitx.cli.util.*;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -58,7 +57,6 @@ public final class App implements Callable<Integer> {
             return 1;
         }
         start.generateOnly = false;
-        start.restart = true;
         var ret = start.call();
         if (ret != 0) {
             InputUtils.pressEnterToContinue();

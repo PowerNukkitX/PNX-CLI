@@ -1,7 +1,7 @@
 package cn.powernukkitx.cli.data.locator;
 
+import cn.powernukkitx.cli.CLIConstant;
 import cn.powernukkitx.cli.data.remote.VersionListHelper;
-import cn.powernukkitx.cli.share.CLIConstant;
 
 import java.io.File;
 import java.io.IOException;

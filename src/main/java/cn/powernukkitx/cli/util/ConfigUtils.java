@@ -1,6 +1,7 @@
 package cn.powernukkitx.cli.util;
 
-import cn.powernukkitx.cli.share.CLIConstant;
+import cn.powernukkitx.cli.CLIConstant;
+import cn.powernukkitx.cli.Main;
 import com.sun.management.OperatingSystemMXBean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,6 +22,7 @@ public final class ConfigUtils {
     public static void init() {
         parseConfigFile(globalConfigFile);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            Main.pnxRunning = false;
             if (hasChanged.get()) {
                 try (var writer = new BufferedWriter(new FileWriter(globalConfigFile))) {
                     INIParser.writeINI(configMap, writer);
@@ -125,6 +127,11 @@ public final class ConfigUtils {
             hasChanged.set(true);
             return mem;
         }
+    }
+
+    public static String[] vmParams() {
+        return Arrays.stream(configMap.getOrDefault("vmParams", "").split(" "))
+                .filter(e -> !e.isBlank()).distinct().toArray(String[]::new);
     }
 
     public static String[] addOpens() {

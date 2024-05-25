@@ -1,6 +1,6 @@
 package cn.powernukkitx.cli.data.locator;
 
-import cn.powernukkitx.cli.share.CLIConstant;
+import cn.powernukkitx.cli.CLIConstant;
 import cn.powernukkitx.cli.util.CollectionUtils;
 import cn.powernukkitx.cli.util.ConfigUtils;
 import cn.powernukkitx.cli.util.StringUtils;

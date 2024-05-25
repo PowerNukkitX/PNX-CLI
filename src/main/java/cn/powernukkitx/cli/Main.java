@@ -11,7 +11,7 @@ import java.util.Timer;
 
 public final class Main {
     static Timer timer = null;
-    public static boolean pnxRunning = false;
+    public static volatile boolean pnxRunning = false;
 
     public static void main(String[] args) {
         AnsiConsole.systemInstall();

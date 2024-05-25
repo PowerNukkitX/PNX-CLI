@@ -1,6 +1,6 @@
 package cn.powernukkitx.cli.util;
 
-import cn.powernukkitx.cli.share.CLIConstant;
+import cn.powernukkitx.cli.CLIConstant;
 
 import java.io.*;
 import java.nio.charset.Charset;

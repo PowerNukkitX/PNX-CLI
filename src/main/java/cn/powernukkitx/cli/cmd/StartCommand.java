@@ -1,12 +1,12 @@
 package cn.powernukkitx.cli.cmd;
 
+import cn.powernukkitx.cli.CLIConstant;
 import cn.powernukkitx.cli.Main;
 import cn.powernukkitx.cli.data.builder.JVMStartCommandBuilder;
 import cn.powernukkitx.cli.data.locator.GraalJITLocator;
 import cn.powernukkitx.cli.data.locator.GraalModuleLocator;
 import cn.powernukkitx.cli.data.locator.JarLocator;
 import cn.powernukkitx.cli.data.locator.JavaLocator;
-import cn.powernukkitx.cli.share.CLIConstant;
 import cn.powernukkitx.cli.util.*;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -43,9 +43,6 @@ public final class StartCommand implements Callable<Integer> {
     @Override
     public Integer call() {
         var cmdBuilder = new JVMStartCommandBuilder();
-        if (args != null && args.length > 0) {
-            cmdBuilder.setOtherArgs(args);
-        }
         var javaList = new JavaLocator("21", true).locate();
         if (javaList.isEmpty()) {
             Logger.error(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-java21"), OSUtils.getProgramName())).fgDefault());
@@ -90,7 +87,7 @@ public final class StartCommand implements Callable<Integer> {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            }else {
+            } else {
                 Logger.warn(ansi().fgBrightRed().a(new Formatter().format(bundle.getString("no-libs"), OSUtils.getProgramName())).fgDefault());
                 return 1;
             }
@@ -127,6 +124,9 @@ public final class StartCommand implements Callable<Integer> {
         var graalModules = new GraalModuleLocator().locate();
         for (var module : graalModules) {
             cmdBuilder.addModulePath(module.getFile().getAbsolutePath());
+        }
+        for (var each : ConfigUtils.vmParams()) {
+            cmdBuilder.addOtherArgs(each);
         }
         for (var each : ConfigUtils.addOpens()) {
             cmdBuilder.addAddOpen(each);
@@ -194,12 +194,6 @@ public final class StartCommand implements Callable<Integer> {
             }
             var process = builder.start();
             Main.pnxRunning = true;
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                if (process.isAlive()) {
-                    process.destroy();
-                    Main.pnxRunning = false;
-                }
-            }));
             if (useStdinFile) {
                 var stdinFile = new File(CLIConstant.userDir, stdin);
                 if (stdinFile.exists() && stdinFile.isFile() && stdinFile.canRead() && stdinFile.canWrite()) {

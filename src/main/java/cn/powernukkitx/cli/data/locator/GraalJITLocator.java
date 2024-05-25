@@ -1,6 +1,6 @@
 package cn.powernukkitx.cli.data.locator;
 
-import cn.powernukkitx.cli.share.CLIConstant;
+import cn.powernukkitx.cli.CLIConstant;
 
 import java.io.File;
 import java.util.Arrays;
