@@ -3,8 +3,6 @@ package cn.powernukkitx.cli.cmd;
 import cn.powernukkitx.cli.CLIConstant;
 import cn.powernukkitx.cli.Main;
 import cn.powernukkitx.cli.data.builder.JVMStartCommandBuilder;
-import cn.powernukkitx.cli.data.locator.GraalJITLocator;
-import cn.powernukkitx.cli.data.locator.GraalModuleLocator;
 import cn.powernukkitx.cli.data.locator.JarLocator;
 import cn.powernukkitx.cli.data.locator.JavaLocator;
 import cn.powernukkitx.cli.util.*;
@@ -97,34 +95,16 @@ public final class StartCommand implements Callable<Integer> {
         Logger.info(ansi().fgBrightYellow().a(new Formatter().format(bundle.getString("using-pnx"), Ok(pnx.getInfo().getGitInfo().orElse(null), info -> info.getMainVersion() + " - " + info.getCommitID(), "unknown"))).fgDefault());
         cmdBuilder.setStartTarget("cn.nukkit.Nukkit");
         cmdBuilder.addClassPath(new File(CLIConstant.userDir, "libs").getAbsolutePath() + File.separator + "*");
-        cmdBuilder.addAddOpen("java.base/java.lang");
-        cmdBuilder.addAddOpen("java.base/java.io");
         cmdBuilder.addProperty("file.encoding", "UTF-8");
         cmdBuilder.addProperty("jansi.passthrough", "true");
         cmdBuilder.addProperty("terminal.ansi", "true");
+        cmdBuilder.addAddOpen("java.base/java.lang");
+        cmdBuilder.addAddOpen("java.base/java.io");
+        cmdBuilder.addAddOpen("java.base/java.net");
         cmdBuilder.addXOption("mx", ConfigUtils.maxVMMemory());
-        cmdBuilder.addXxOption("UnlockExperimentalVMOptions", true);
-        cmdBuilder.addXxOption("UseG1GC", true);
+        cmdBuilder.addXxOption("UseZGC", true);
+        cmdBuilder.addXxOption("ZGenerational", true);
         cmdBuilder.addXxOption("UseStringDeduplication", true);
-        cmdBuilder.addXxOption("EnableJVMCI", true);
-        var graalStatus = getGraalStatus(java.getInfo());
-        if (graalStatus != GraalStatus.NotFound) {
-            cmdBuilder.addXxOption("UseJVMCICompiler", true);
-            if (graalStatus != GraalStatus.LowVersion && graalStatus != GraalStatus.Standard) {
-                cmdBuilder.addXxOption("UseJVMCINativeLibrary", true);
-            }
-        } else {
-            var graalJIT = new GraalJITLocator().locate();
-            if (graalJIT.size() > 1) {
-                cmdBuilder.addXxOption("UseJVMCICompiler", true);
-                cmdBuilder.addUpgradeModuleArgs(graalJIT.get(0).getFile().getAbsolutePath());
-                cmdBuilder.addUpgradeModuleArgs(graalJIT.get(1).getFile().getAbsolutePath());
-            }
-        }
-        var graalModules = new GraalModuleLocator().locate();
-        for (var module : graalModules) {
-            cmdBuilder.addModulePath(module.getFile().getAbsolutePath());
-        }
         for (var each : ConfigUtils.vmParams()) {
             cmdBuilder.addOtherArgs(each);
         }
